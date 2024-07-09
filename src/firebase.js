@@ -1,17 +1,18 @@
 // src/firebase.js
-import firebase from 'firebase/app';
-import 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyBWC-ipYp1cqs8CeLHJviGA3telZK6hJWg",
+  authDomain: "career-web-application.firebaseapp.com",
+  projectId: "career-web-application",
+  storageBucket: "career-web-application.appspot.com",
+  messagingSenderId: "61060260911",
+  appId: "1:61060260911:web:a7c7f1318e7732297652da",
+  measurementId: "G-RC9NEXVS26"
 };
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 export { db };
