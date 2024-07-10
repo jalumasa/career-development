@@ -1,23 +1,52 @@
-import logo from './logo.svg';
+import React from 'react';
+import { Link, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import './App.css';
+import logo from './logo.svg';
+import CareerResources from './pages/CareerResources';
+import Chatbot from './pages/Chatbot';
+import Mentorship from './pages/Mentorship';
+import Networking from './pages/Networking';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <Router>
+      <div className="App">
+        <header className="App-header">
+          <nav className="navbar">
+            <img src={logo} className="App-logo" alt="logo" />
+            <ul className="nav-links">
+              <li><Link to="/resources">Resources</Link></li>
+              <li><Link to="/networking">Networking</Link></li>
+              <li><Link to="/mentorship">Mentorship</Link></li>
+              <li><Link to="/chatbot">Chatbot</Link></li>
+            </ul>
+          </nav>
+        </header>
+        <main className="App-main">
+          <Routes>
+            <Route path="/resources" element={<CareerResources />} />
+            <Route path="/networking" element={<Networking />} />
+            <Route path="/mentorship" element={<Mentorship />} />
+            <Route path="/chatbot" element={<Chatbot />} />
+            <Route path="/" element={<HomePage />} />
+          </Routes>
+        </main>
+      </div>
+    </Router>
+  );
+}
+
+function HomePage() {
+  return (
+    <div className="home">
+      <h1>Welcome to Career Development</h1>
+      <p>Explore resources, network with professionals, get mentorship, and chat with our AI for career guidance.</p>
+      <div className="home-buttons">
+        <Link to="/resources" className="home-button">Career Resources</Link>
+        <Link to="/networking" className="home-button">Networking Events</Link>
+        <Link to="/mentorship" className="home-button">Career Mentorship</Link>
+        <Link to="/chatbot" className="home-button">Career AI Chatbot</Link>
+      </div>
     </div>
   );
 }
