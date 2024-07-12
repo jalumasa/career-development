@@ -1,26 +1,26 @@
 import React, { useState } from 'react';
-import { db } from '../firebase'; // Import Firebase config
+import { addDoc, collection, db } from '../firebase'; // Import Firebase config and Firestore functions
 
-const BookingForm = () => {
+const BookingForm = ({ mentors }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    date: '',
-    mentor: ''
+    mentor: '',
+    date: ''
   });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    db.collection('bookings').add(formData);
+    await addDoc(collection(db, 'bookings'), formData);
     setFormData({
       name: '',
       email: '',
-      date: '',
-      mentor: ''
+      mentor: '',
+      date: ''
     });
     alert('Booking request sent!');
   };
@@ -31,7 +31,12 @@ const BookingForm = () => {
       <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Your Name" required />
       <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Your Email" required />
       <input type="date" name="date" value={formData.date} onChange={handleChange} required />
-      <input type="text" name="mentor" value={formData.mentor} onChange={handleChange} placeholder="Mentor's Name" required />
+      <select name="mentor" value={formData.mentor} onChange={handleChange} required>
+        <option value="" disabled>Select Mentor</option>
+        {mentors.map((mentor, index) => (
+          <option key={index} value={mentor.name}>{mentor.name}</option>
+        ))}
+      </select>
       <button type="submit">Submit</button>
     </form>
   );
