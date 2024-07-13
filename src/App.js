@@ -1,14 +1,15 @@
 import React from 'react';
-import { FaSearch } from 'react-icons/fa'; // Import the search icon
 import { Link, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import './App.css';
 import logo from './career.png'; // Import your logo file
+import SearchBar from './components/SearchBar'; // Import the SearchBar component
 import Footer from './Footer';
 import desktop from './images/colorful.jpg';
 import CareerResources from './pages/CareerResources';
 import Chatbot from './pages/Chatbot';
 import Mentorship from './pages/Mentorship';
 import Networking from './pages/Networking';
+import SearchResults from './pages/SearchResults'; // Import the SearchResults component
 
 function App() {
   return (
@@ -25,10 +26,7 @@ function App() {
               <li><Link to="/mentorship" className="nunito-regular">Mentorship</Link></li>
               <li><Link to="/chatbot" className="nunito-regular">Chatbot</Link></li>
             </ul>
-            <div className="search-bar">
-              <FaSearch className="search-icon" />
-              <input type="text" placeholder="Search..." />
-            </div>
+            <SearchBar /> {/* Use the SearchBar component here */}
           </nav>
         </header>
         <main className="App-main">
@@ -37,10 +35,11 @@ function App() {
             <Route path="/networking" element={<Networking />} />
             <Route path="/mentorship" element={<Mentorship />} />
             <Route path="/chatbot" element={<Chatbot />} />
+            <Route path="/search" element={<SearchResults />} />
             <Route path="/" element={<HomePage />} />
           </Routes>
         </main>
-        <Footer /> {Footer}
+        <Footer />
       </div>
     </Router>
   );
