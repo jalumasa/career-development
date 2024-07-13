@@ -1,0 +1,17 @@
+.search-bar {
+    display: flex;
+    align-items: center;
+  }
+  
+  .search-icon {
+    color: #fff;
+    margin-right: 8px;
+  }
+  
+  .search-bar input {
+    padding: 8px;
+    border: 1px solid #555;
+    border-radius: 5px;
+    background-color: #222;
+    color: #fff;
+  }
