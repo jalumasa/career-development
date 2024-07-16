@@ -1,0 +1,40 @@
+.admin-panel {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #333;
+    border-radius: 8px;
+    color: #fff;
+  }
+  
+  .admin-section {
+    margin-bottom: 20px;
+  }
+  
+  .admin-section h2 {
+    margin-bottom: 10px;
+  }
+  
+  .admin-section input, .admin-section textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #555;
+    background-color: #444;
+    color: #fff;
+  }
+  
+  .admin-section button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #61dafb;
+    color: #1a1a1a;
+    cursor: pointer;
+  }
+  
+  .admin-section button:hover {
+    background-color: #21a1f1;
+  }
+  
