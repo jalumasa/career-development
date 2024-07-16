@@ -1,17 +1,41 @@
-import React from 'react';
-import { Link, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc, getFirestore } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
+import { Link, Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import './App.css';
 import logo from './career.png'; // Import your logo file
-import SearchBar from './components/SearchBar'; // Import the SearchBar component
+import SearchBar from './components/SearchBar';
 import Footer from './Footer';
 import desktop from './images/colorful.jpg';
+import AdminPanel from './pages/AdminPanel'; // Import the AdminPanel component
 import CareerResources from './pages/CareerResources';
 import Chatbot from './pages/Chatbot';
+import Login from './pages/Login'; // Import the Login component
 import Mentorship from './pages/Mentorship';
 import Networking from './pages/Networking';
-import SearchResults from './pages/SearchResults'; // Import the SearchResults component
+import SearchResults from './pages/SearchResults';
+
+const auth = getAuth();
+const db = getFirestore();
 
 function App() {
+  const [user, setUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
+        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        if (userDoc.exists()) {
+          setIsAdmin(userDoc.data().role === 'admin');
+        }
+      }
+    });
+
+    return unsubscribe;
+  }, []);
+
   return (
     <Router>
       <div className="App">
@@ -25,6 +49,7 @@ function App() {
               <li><Link to="/networking" className="nunito-regular">Networking</Link></li>
               <li><Link to="/mentorship" className="nunito-regular">Mentorship</Link></li>
               <li><Link to="/chatbot" className="nunito-regular">Chatbot</Link></li>
+              {isAdmin && <li><Link to="/admin" className="nunito-regular">Admin</Link></li>}
             </ul>
             <SearchBar /> {/* Use the SearchBar component here */}
           </nav>
@@ -36,6 +61,8 @@ function App() {
             <Route path="/mentorship" element={<Mentorship />} />
             <Route path="/chatbot" element={<Chatbot />} />
             <Route path="/search" element={<SearchResults />} />
+            <Route path="/admin" element={isAdmin ? <AdminPanel /> : <Navigate to="/" />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/" element={<HomePage />} />
           </Routes>
         </main>
