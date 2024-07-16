@@ -1,8 +1,7 @@
-import { addDoc, collection, getFirestore } from 'firebase/firestore';
+import { addDoc, collection } from 'firebase/firestore';
 import React, { useState } from 'react';
+import { db } from '../firebase'; // Import db from firebase.js
 import './AdminPanel.css';
-
-const db = getFirestore();
 
 const AdminPanel = () => {
   const [resource, setResource] = useState({ title: '', description: '', link: '' });
