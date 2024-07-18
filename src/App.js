@@ -11,12 +11,15 @@ import desktop from './images/colorful.jpg';
 import AdminPanel from './pages/AdminPanel'; // Import the AdminPanel component
 import CareerResources from './pages/CareerResources';
 import Chatbot from './pages/Chatbot';
+import Dashboard from './pages/Dashboard'; // Import the Dashboard component
 import Login from './pages/Login'; // Import the Login component
 import Mentorship from './pages/Mentorship';
 import Networking from './pages/Networking';
+import Profile from './pages/Profile'; // Import the Profile component
 import SearchResults from './pages/SearchResults';
 
 function App() {
+  const [user, setUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
@@ -26,11 +29,25 @@ function App() {
         if (userDoc.exists()) {
           setIsAdmin(userDoc.data().role === 'admin');
         }
+        setUser(currentUser);
+      } else {
+        setUser(null);
       }
     });
 
     return unsubscribe;
   }, []);
+
+  if (!user) {
+    return (
+      <Router>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="*" element={<Navigate to="/login" />} />
+        </Routes>
+      </Router>
+    );
+  }
 
   return (
     <Router>
@@ -45,7 +62,13 @@ function App() {
               <li><Link to="/networking" className="nunito-regular">Networking</Link></li>
               <li><Link to="/mentorship" className="nunito-regular">Mentorship</Link></li>
               <li><Link to="/chatbot" className="nunito-regular">Chatbot</Link></li>
-              {isAdmin && <li><Link to="/admin" className="nunito-regular">Admin</Link></li>}
+              <li><Link to="/profile" className="nunito-regular">Profile</Link></li>
+              {isAdmin && (
+                <>
+                  <li><Link to="/admin" className="nunito-regular">Admin</Link></li>
+                  <li><Link to="/dashboard" className="nunito-regular">Dashboard</Link></li>
+                </>
+              )}
             </ul>
             <SearchBar /> {/* Use the SearchBar component here */}
           </nav>
@@ -58,7 +81,8 @@ function App() {
             <Route path="/chatbot" element={<Chatbot />} />
             <Route path="/search" element={<SearchResults />} />
             <Route path="/admin" element={isAdmin ? <AdminPanel /> : <Navigate to="/" />} />
-            <Route path="/login" element={<Login />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/dashboard" element={isAdmin ? <Dashboard /> : <Navigate to="/" />} />
             <Route path="/" element={<HomePage />} />
           </Routes>
         </main>
