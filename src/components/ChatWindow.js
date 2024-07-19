@@ -1,13 +1,30 @@
+import { ChatContainer, MainContainer, Message, MessageList, TypingIndicator } from '@chatscope/chat-ui-kit-react';
+import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import React from 'react';
 
-const ChatWindow = ({ messages }) => {
+const ChatWindow = ({ messages, isTyping }) => {
   return (
-    <div className="chat-window">
-      {messages.map((message, index) => (
-        <div key={index} className={message.user === 'user' ? 'user-message' : 'bot-message'}>
-          {message.text}
-        </div>
-      ))}
+    <div style={{ position: "relative", height: "800px", width: "700px" }}>
+      <MainContainer>
+        <ChatContainer>
+          <MessageList
+            scrollBehavior="smooth"
+            typingIndicator={isTyping ? <TypingIndicator content="ChatGPT is typing" /> : null}
+          >
+            {messages.map((message, i) => (
+              <Message
+                key={i}
+                model={{
+                  message: message.message,
+                  sentTime: message.sentTime,
+                  sender: message.sender,
+                  direction: message.sender === 'user' ? 'outgoing' : 'incoming'
+                }}
+              />
+            ))}
+          </MessageList>
+        </ChatContainer>
+      </MainContainer>
     </div>
   );
 };
