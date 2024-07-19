@@ -351,3 +351,7 @@ form.card button:hover {
     padding: 10px;
   }
 }
+
+html {
+  scroll-behavior: smooth;
+}
