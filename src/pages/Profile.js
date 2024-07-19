@@ -1,24 +1,23 @@
-import { getAuth, signOut } from 'firebase/auth';
+import { getAuth, signOut, updateEmail, updatePassword } from 'firebase/auth';
 import { doc, getDoc, getFirestore, updateDoc } from 'firebase/firestore';
-import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import React, { useEffect, useState } from 'react';
 import './Profile.css';
 
 const Profile = () => {
   const auth = getAuth();
   const db = getFirestore();
-  const storage = getStorage();
   const user = auth.currentUser;
 
   const [profile, setProfile] = useState({
     name: '',
-    profilePicture: '',
     information: '',
+    email: user.email,
   });
   const [newProfile, setNewProfile] = useState({
     name: '',
-    profilePicture: null,
     information: '',
+    email: '',
+    password: '',
   });
   const [error, setError] = useState(null);
 
@@ -38,34 +37,37 @@ const Profile = () => {
   }, [db, user.uid]);
 
   const handleChange = (e) => {
-    const { name, value, files } = e.target;
+    const { name, value } = e.target;
     setNewProfile((prev) => ({
       ...prev,
-      [name]: files ? files[0] : value,
+      [name]: value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      let profilePictureURL = profile.profilePicture;
+      if (newProfile.email) {
+        await updateEmail(user, newProfile.email);
+        setProfile((prev) => ({
+          ...prev,
+          email: newProfile.email,
+        }));
+      }
 
-      if (newProfile.profilePicture) {
-        const profilePictureRef = ref(storage, `profilePictures/${user.uid}`);
-        await uploadBytes(profilePictureRef, newProfile.profilePicture);
-        profilePictureURL = await getDownloadURL(profilePictureRef);
+      if (newProfile.password) {
+        await updatePassword(user, newProfile.password);
       }
 
       await updateDoc(doc(db, 'users', user.uid), {
         name: newProfile.name || profile.name,
-        profilePicture: profilePictureURL,
         information: newProfile.information || profile.information,
       });
 
       setProfile({
         name: newProfile.name || profile.name,
-        profilePicture: profilePictureURL,
         information: newProfile.information || profile.information,
+        email: newProfile.email || profile.email,
       });
       setError(null);
     } catch (error) {
@@ -86,8 +88,8 @@ const Profile = () => {
       <h1>Profile</h1>
       {error && <p className="error">{error}</p>}
       <div className="profile-info">
-        <img src={profile.profilePicture || 'default-profile.png'} alt="Profile" className="profile-picture" />
         <p>Name: {profile.name}</p>
+        <p>Email: {profile.email}</p>
         <p>Information: {profile.information}</p>
       </div>
       <form onSubmit={handleSubmit} className="profile-form">
@@ -98,16 +100,24 @@ const Profile = () => {
           value={newProfile.name}
           onChange={handleChange}
         />
-        <input
-          type="file"
-          name="profilePicture"
-          accept="image/*"
-          onChange={handleChange}
-        />
         <textarea
           name="information"
           placeholder="New Information"
           value={newProfile.information}
+          onChange={handleChange}
+        />
+        <input
+          type="email"
+          name="email"
+          placeholder="New Email"
+          value={newProfile.email}
+          onChange={handleChange}
+        />
+        <input
+          type="password"
+          name="password"
+          placeholder="New Password"
+          value={newProfile.password}
           onChange={handleChange}
         />
         <button type="submit">Update Profile</button>
