@@ -5,6 +5,19 @@ const systemMessage = {
   content: "You are a career development expert."
 };
 
+const fetchWithExponentialBackoff = async (url, options, retries = 5, backoff = 300) => {
+  try {
+    const response = await fetch(url, options);
+    if (!response.ok && response.status === 429 && retries > 0) {
+      await new Promise(resolve => setTimeout(resolve, backoff));
+      return fetchWithExponentialBackoff(url, options, retries - 1, backoff * 2);
+    }
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const getChatbotResponse = async (message) => {
   const apiMessages = [
     { role: "user", content: message }
@@ -19,7 +32,7 @@ export const getChatbotResponse = async (message) => {
   };
 
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetchWithExponentialBackoff("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${API_KEY}`,
