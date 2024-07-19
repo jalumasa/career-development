@@ -13,10 +13,12 @@ const Chatbot = () => {
     }
   ]);
   const [isTyping, setIsTyping] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleSendMessage = async (message) => {
     const userMessage = { message, direction: 'outgoing', sender: 'user' };
     setMessages([...messages, userMessage]);
+    setError(null);
 
     setIsTyping(true);
     try {
@@ -28,6 +30,7 @@ const Chatbot = () => {
       ]);
     } catch (error) {
       console.error('Error getting chatbot response:', error);
+      setError('Sorry, I encountered an error. Please try again later.');
     }
     setIsTyping(false);
   };
@@ -37,6 +40,7 @@ const Chatbot = () => {
       <h1>Career AI Chatbot</h1>
       <ChatWindow messages={messages} isTyping={isTyping} />
       <ChatInput onSendMessage={handleSendMessage} />
+      {error && <p className="error-message">{error}</p>}
     </div>
   );
 };
