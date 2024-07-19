@@ -1,0 +1,29 @@
+.container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    overflow: hidden; /* Hide overflow to avoid unnecessary scrolling */
+  }
+  
+  .chart-container {
+    display: flex;
+    justify-content: center;
+    align-items: center; /* Center the chart container */
+  }
+  
+  .chart {
+    width: 100%;
+    max-width: 500px; /* Reduce max-width to ensure better fit */
+    height: auto; /* Auto height to maintain aspect ratio */
+  }
+  
+  .summary {
+    text-align: center; /* Center align the summary text */
+    margin-top: 20px; /* Add some space above the summary */
+  }
+  
+  .summary p {
+    font-size: 1.2em; /* Increase font size for better readability */
+    margin: 5px 0; /* Add some margin between the lines */
+  }
+  
