@@ -21,6 +21,7 @@ import SearchResults from './pages/SearchResults';
 function App() {
   const [user, setUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -33,10 +34,15 @@ function App() {
       } else {
         setUser(null);
       }
+      setLoading(false);
     });
 
     return unsubscribe;
   }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   if (!user) {
     return (
