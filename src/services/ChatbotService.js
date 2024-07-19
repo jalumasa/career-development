@@ -1,31 +1,43 @@
-import axios from 'axios';
+const API_KEY = process.env.REACT_APP_OPENAI_API_KEY;
+
+const systemMessage = {
+  role: "system",
+  content: "You are a career development expert."
+};
 
 export const getChatbotResponse = async (message) => {
-  const apiKey = process.env.REACT_APP_OPENAI_API_KEY;
-  const apiUrl = 'https://api.openai.com/v1/chat/completions'; // Updated endpoint for chat completion
+  const apiMessages = [
+    { role: "user", content: message }
+  ];
 
-  const data = {
-    model: 'gpt-3.5-turbo',
+  const apiRequestBody = {
+    model: "gpt-3.5-turbo",
     messages: [
-      { role: 'system', content: 'You are a career development assistant.' },
-      { role: 'user', content: message }
-    ],
-    max_tokens: 150,
-    temperature: 0.7
-  };
-
-  const headers = {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${apiKey}`
+      systemMessage,
+      ...apiMessages
+    ]
   };
 
   try {
-    const response = await axios.post(apiUrl, data, { headers });
-    console.log('OpenAI Response:', response.data); // Log the response data for debugging
-    const botResponse = response.data.choices[0].message.content.trim();
-    return { text: botResponse, user: 'bot' };
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(apiRequestBody)
+    });
+
+    const data = await response.json();
+
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      console.error('API response:', data);
+      throw new Error('Invalid response from ChatGPT API');
+    }
+
+    return { text: data.choices[0].message.content, user: "ChatGPT" };
   } catch (error) {
-    console.error('Error fetching response from OpenAI:', error.response ? error.response.data : error.message);
-    return { text: 'Sorry, I encountered an error. Please try again later.', user: 'bot' };
+    console.error('Error in getChatbotResponse:', error);
+    throw error;
   }
 };
