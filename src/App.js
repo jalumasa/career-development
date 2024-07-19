@@ -10,7 +10,7 @@ import Footer from './Footer';
 import desktop from './images/colorful.jpg';
 import AdminPanel from './pages/AdminPanel'; // Import the AdminPanel component
 import CareerResources from './pages/CareerResources';
-import Chatbot from './pages/Chatbot';
+import Chatbot from './pages/Chatbot'; // Import the Chatbot component
 import Dashboard from './pages/Dashboard'; // Import the Dashboard component
 import Login from './pages/Login'; // Import the Login component
 import Mentorship from './pages/Mentorship';
