@@ -1,4 +1,5 @@
 const API_KEY = process.env.REACT_APP_OPENAI_API_KEY;
+console.log('API Key:', API_KEY); // This should log your API key to the console
 
 const systemMessage = {
   role: "system",
@@ -14,6 +15,7 @@ const fetchWithExponentialBackoff = async (url, options, retries = 5, backoff = 
     }
     return response;
   } catch (error) {
+    console.error('Error fetching data:', error);
     throw error;
   }
 };
@@ -31,6 +33,8 @@ export const getChatbotResponse = async (message) => {
     ]
   };
 
+  console.log('API Request:', JSON.stringify(apiRequestBody, null, 2)); // Log the API request body
+
   try {
     const response = await fetchWithExponentialBackoff("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -42,6 +46,8 @@ export const getChatbotResponse = async (message) => {
     });
 
     const data = await response.json();
+
+    console.log('API Response:', JSON.stringify(data, null, 2)); // Log the API response
 
     if (!data.choices || !data.choices[0] || !data.choices[0].message) {
       console.error('API response:', data);
