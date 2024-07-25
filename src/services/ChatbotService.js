@@ -26,7 +26,7 @@ export const getChatbotResponse = async (message) => {
   ];
 
   const apiRequestBody = {
-    model: "gpt-3.5-turbo",
+    model: "gpt-4o-mini",
     messages: [
       systemMessage,
       ...apiMessages
