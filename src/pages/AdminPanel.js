@@ -1,6 +1,6 @@
-import { addDoc, collection, deleteDoc, doc, getDocs } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDocs, getFirestore } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
-import { db } from '../firebase'; // Import db from firebase.js
+import { db } from '../firebase'; // Import db and auth from firebase.js
 import './AdminPanel.css';
 
 const AdminPanel = () => {
@@ -10,6 +10,7 @@ const AdminPanel = () => {
   const [networkingEvents, setNetworkingEvents] = useState([]);
   const [mentor, setMentor] = useState({ name: '', bio: '', specialty: '', contactEmail: '' });
   const [mentors, setMentors] = useState([]);
+  const [users, setUsers] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -22,6 +23,9 @@ const AdminPanel = () => {
 
         const mentorsSnapshot = await getDocs(collection(db, 'mentors'));
         setMentors(mentorsSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })));
+
+        const usersSnapshot = await getDocs(collection(db, 'users'));
+        setUsers(usersSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })));
       } catch (error) {
         console.error("Error fetching data: ", error);
       }
@@ -35,6 +39,20 @@ const AdminPanel = () => {
     setState({ ...state, [name]: value });
   };
 
+  const addNotification = async (type, message) => {
+    const batch = getFirestore().batch();
+    users.forEach(user => {
+      const notificationRef = doc(collection(db, 'notifications'));
+      batch.set(notificationRef, {
+        userId: user.id,
+        type,
+        message,
+        timestamp: new Date()
+      });
+    });
+    await batch.commit();
+  };
+
   const handleAddResource = async () => {
     try {
       await addDoc(collection(db, 'resources'), resource);
@@ -42,6 +60,7 @@ const AdminPanel = () => {
       // Reload resources
       const resourcesSnapshot = await getDocs(collection(db, 'resources'));
       setResources(resourcesSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })));
+      await addNotification('resource', `New resource added: ${resource.title}`);
     } catch (error) {
       console.error("Error adding resource: ", error);
     }
@@ -54,6 +73,7 @@ const AdminPanel = () => {
       // Reload networking events
       const networkingEventsSnapshot = await getDocs(collection(db, 'events'));
       setNetworkingEvents(networkingEventsSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })));
+      await addNotification('event', `New networking event: ${networkingEvent.name}`);
     } catch (error) {
       console.error("Error adding event: ", error);
     }
@@ -66,6 +86,7 @@ const AdminPanel = () => {
       // Reload mentors
       const mentorsSnapshot = await getDocs(collection(db, 'mentors'));
       setMentors(mentorsSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })));
+      await addNotification('mentor', `New mentor added: ${mentor.name}`);
     } catch (error) {
       console.error("Error adding mentor: ", error);
     }
