@@ -62,3 +62,31 @@
     margin-bottom: 20px;
   }
   
+  .success {
+    color: green;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .profile-form-group {
+    margin-bottom: 15px;
+  }
+  
+  .profile-form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #bbb;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .profile-container {
+      padding: 15px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .profile-container {
+      padding: 10px;
+    }
+  }
