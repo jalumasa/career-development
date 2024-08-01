@@ -31,7 +31,7 @@ const CareerResources = () => {
   }, [searchTerm, resources]);
 
   return (
-    <div className="container">
+    <div className="resource-item">
       <h1>Career Resources</h1>
       <input
         type="text"

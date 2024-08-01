@@ -1,4 +1,4 @@
-import { addDoc, collection, deleteDoc, doc, getDocs, getFirestore } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDocs, getFirestore, serverTimestamp } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { db } from '../firebase'; // Import db and auth from firebase.js
 import './AdminPanel.css';
@@ -47,7 +47,7 @@ const AdminPanel = () => {
         userId: user.id,
         type,
         message,
-        timestamp: new Date()
+        timestamp: serverTimestamp()
       });
     });
     await batch.commit();
