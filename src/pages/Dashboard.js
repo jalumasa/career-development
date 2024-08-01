@@ -18,14 +18,14 @@ const Dashboard = () => {
     const fetchData = async () => {
       const usersSnapshot = await getDocs(collection(db, 'users'));
       const resourcesSnapshot = await getDocs(collection(db, 'resources'));
-      const bookingsSnapshot = await getDocs(collection(db, 'bookings')); // Assuming bookings are in 'bookings' collection
+      const bookingsSnapshot = await getDocs(collection(db, 'bookings')); 
 
-      const mentorBookingCount = bookingsSnapshot.size; // Adjust based on your bookings data structure
+      const mentorBookingCount = bookingsSnapshot.size; 
 
       setStats({
         activeUsers: usersSnapshot.size,
-        resourceViews: resourcesSnapshot.size, // Replace with actual view count if available
-        mentorBookings: mentorBookingCount, // Use the actual booking count
+        resourceViews: resourcesSnapshot.size,
+        mentorBookings: mentorBookingCount, 
       });
     };
 
@@ -79,6 +79,11 @@ const Dashboard = () => {
         <div className="chart">
           <Bar data={data} options={options} />
         </div>
+      </div>
+      <div className="stats">
+        <div className="stat-item">Active Users: {stats.activeUsers}</div>
+        <div className="stat-item">Resource Views: {stats.resourceViews}</div>
+        <div className="stat-item">Mentor Bookings: {stats.mentorBookings}</div>
       </div>
     </div>
   );
