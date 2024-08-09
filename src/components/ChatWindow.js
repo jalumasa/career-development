@@ -1,6 +1,5 @@
 import { ChatContainer, MainContainer, Message, MessageList, TypingIndicator } from '@chatscope/chat-ui-kit-react';
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
-import { marked } from 'marked';
 import React from 'react';
 
 const ChatWindow = ({ messages, isTyping }) => {
@@ -16,7 +15,7 @@ const ChatWindow = ({ messages, isTyping }) => {
               <Message
                 key={i}
                 model={{
-                  message: message.sender === 'user' ? message.message : marked(message.message), // Use marked to convert markdown to HTML for bot messages
+                  message: message.message,
                   sentTime: message.sentTime,
                   sender: message.sender,
                   direction: message.sender === 'user' ? 'outgoing' : 'incoming'
