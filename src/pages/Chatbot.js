@@ -25,7 +25,6 @@ const Chatbot = () => {
       const botResponse = await getChatbotResponse(message);
       setMessages((prevMessages) => [
         ...prevMessages,
-        userMessage,
         { message: botResponse.text, sender: "ChatGPT" }
       ]);
     } catch (error) {
