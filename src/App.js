@@ -15,7 +15,6 @@ import Dashboard from './pages/Dashboard'; // Import the Dashboard component
 import Login from './pages/Login'; // Import the Login component
 import Mentorship from './pages/Mentorship';
 import Networking from './pages/Networking';
-import NotificationsPage from './pages/NotificationsPage'; // Import the NotificationsPage component
 import Profile from './pages/Profile'; // Import the Profile component
 import SearchResults from './pages/SearchResults';
 
@@ -70,7 +69,6 @@ function App() {
               <li><Link to="/mentorship" className="nunito-regular">Mentorship</Link></li>
               <li><Link to="/chatbot" className="nunito-regular">Chatbot</Link></li>
               <li><Link to="/profile" className="nunito-regular">Profile</Link></li>
-              <li><Link to="/notifications" className="nunito-regular">Notifications</Link></li>
               {isAdmin && (
                 <>
                   <li><Link to="/admin" className="nunito-regular">Admin</Link></li>
@@ -91,7 +89,6 @@ function App() {
             <Route path="/admin" element={isAdmin ? <AdminPanel /> : <Navigate to="/" />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/dashboard" element={isAdmin ? <Dashboard /> : <Navigate to="/" />} />
-            <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/" element={<HomePage />} />
           </Routes>
         </main>

@@ -31,7 +31,7 @@ const CareerResources = () => {
   }, [searchTerm, resources]);
 
   return (
-    <div className="resource-item">
+    <div className="container">
       <h1>Career Resources</h1>
       <input
         type="text"
@@ -40,9 +40,13 @@ const CareerResources = () => {
         onChange={(e) => setSearchTerm(e.target.value)}
         className="search-input"
       />
-      {filteredResources.map((resource, index) => (
-        <ResourceItem key={index} resource={resource} />
-      ))}
+      <div className="resource-list">
+        {filteredResources.map((resource, index) => (
+          <div key={index} className="resource-item">
+            <ResourceItem resource={resource} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
