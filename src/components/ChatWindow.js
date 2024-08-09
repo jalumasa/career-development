@@ -9,7 +9,7 @@ const ChatWindow = ({ messages, isTyping }) => {
         <ChatContainer>
           <MessageList
             scrollBehavior="smooth"
-            typingIndicator={isTyping ? <TypingIndicator content="ChatGPT is typing" /> : null}
+            typingIndicator={isTyping ? <TypingIndicator content="CareerBot is typing" /> : null}
           >
             {messages.map((message, i) => (
               <Message
