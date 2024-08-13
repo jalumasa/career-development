@@ -1,14 +1,20 @@
+/* General Styles */
 body {
   font-family: 'Nunito', sans-serif;
   margin: 0;
   padding: 0;
   background-color: #0e0e0e;
   color: #ffffff;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
+h1 {
+  color: #ffffff;
+}
+
+/* Header and Navigation */
 .App-header {
   background-color: #0e0e0e;
   padding: 10px 20px;
@@ -47,6 +53,7 @@ body {
   font-weight: bold;
 }
 
+/* Search Bar */
 .search-bar {
   margin-left: auto;
   display: flex;
@@ -66,10 +73,11 @@ body {
   color: #fff;
 }
 
+/* Container and Hero */
 .container {
   max-width: 1200px;
   margin: 20px auto;
-  padding: 20px; /* Increased padding */
+  padding: 20px;
 }
 
 .hero {
@@ -95,10 +103,7 @@ body {
   border-radius: 10px;
 }
 
-h1 {
-  color: #ffffff;
-}
-
+/* Home and Buttons */
 .home {
   text-align: center;
   flex: 1;
@@ -106,11 +111,13 @@ h1 {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100%;
 }
 
 .home-buttons {
   margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .home-button {
@@ -121,20 +128,23 @@ h1 {
   text-decoration: none;
   border-radius: 5px;
   transition: background-color 0.3s;
+  display: inline-block;
 }
 
 .home-button:hover {
   background-color: #21a1f1;
 }
 
+/* Card */
 .card {
   background-color: #222;
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
   padding: 20px;
-  margin: 20px 0; /* Increased margin */
+  margin: 20px 0;
 }
 
+/* Chatbot Window */
 .chat-window {
   border: 1px solid #555;
   border-radius: 5px;
@@ -150,7 +160,7 @@ h1 {
   background-color: #444;
   padding: 10px;
   border-radius: 5px;
-  margin: 10px 0; /* Increased margin */
+  margin: 10px 0;
 }
 
 .bot-message {
@@ -158,11 +168,14 @@ h1 {
   background-color: #333;
   padding: 10px;
   border-radius: 5px;
-  margin: 10px 0; /* Increased margin */
+  margin: 10px 0;
 }
 
 .chat-input {
   display: flex;
+  width: 100%;
+  max-width: 700px;
+  margin-top: 10px;
 }
 
 .chat-input input {
@@ -187,6 +200,7 @@ h1 {
   background-color: #21a1f1;
 }
 
+/* Form */
 form.card {
   display: flex;
   flex-direction: column;
@@ -220,6 +234,7 @@ form.card button:hover {
   border-radius: 5px;
 }
 
+/* Fonts */
 .nunito-light {
   font-weight: 300;
 }
@@ -232,19 +247,23 @@ form.card button:hover {
   font-weight: 700;
 }
 
+/* Chatbot Box */
 .chatbot-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: calc(100vh - 120px); /* Adjust based on your header and footer height */
+  flex-direction: column;
+  height: calc(100vh - 120px);
   background-color: #0e0e0e;
   color: #ffffff;
 }
 
 .chatbot-box {
   position: relative;
+  max-width: 90%; /* Ensures it scales well on smaller screens */
   height: 700px;
-  width: 600px;
+  width: 100%;
+  max-width: 600px;
   background-color: #1a1a1a;
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
@@ -275,6 +294,7 @@ form.card button:hover {
   background-color: #21a1f1;
 }
 
+/* Media Queries for Responsive Design */
 @media (max-width: 1200px) {
   .container {
     padding: 15px;
@@ -287,6 +307,10 @@ form.card button:hover {
   .home-buttons {
     flex-direction: column;
     align-items: center;
+  }
+
+  .chatbot-box {
+    height: 600px;
   }
 }
 
@@ -313,6 +337,11 @@ form.card button:hover {
 
   .card {
     padding: 15px;
+  }
+
+  .chatbot-box {
+    height: 500px;
+    width: 100%;
   }
 }
 
@@ -349,6 +378,11 @@ form.card button:hover {
 
   .card {
     padding: 10px;
+  }
+
+  .chatbot-box {
+    height: 400px;
+    width: 100%;
   }
 }
 
