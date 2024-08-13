@@ -389,3 +389,10 @@ form.card button:hover {
 html {
   scroll-behavior: smooth;
 }
+
+.password-hint {
+  color: #888;
+  font-size: 0.9em;
+  margin-top: -10px;
+  margin-bottom: 10px;
+}

@@ -14,6 +14,8 @@ const Login = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  const passwordHint = 'Password must be at least 8 characters long.';
+
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -27,6 +29,13 @@ const Login = () => {
 
   const handleSignUp = async (e) => {
     e.preventDefault();
+
+    // Check if the password meets the criteria
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long.');
+      return;
+    }
+
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
@@ -57,7 +66,7 @@ const Login = () => {
       case 'auth/email-already-in-use':
         return 'Email is already in use.';
       case 'auth/weak-password':
-        return 'Password is too weak.';
+        return 'Password is too weak. It must be at least 8 characters long.';
       default:
         return 'An error occurred. Please try again.';
     }
@@ -83,6 +92,7 @@ const Login = () => {
           placeholder="Password"
           required
         />
+        {isSignUp && <p className="password-hint">{passwordHint}</p>}
         <button type="submit">{isSignUp ? 'Sign Up' : 'Login'}</button>
       </form>
       {error && <p className="error">{error}</p>}
