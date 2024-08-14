@@ -3,19 +3,19 @@ import { doc, getDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { Link, Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import './App.css';
-import logo from './career.png'; // Import your logo file
+import logo from './career.png';
 import SearchBar from './components/SearchBar';
-import { auth, db } from './firebase'; // Import Firebase configuration
+import { auth, db } from './firebase';
 import Footer from './Footer';
-import desktop from './images/colorful.jpg';
-import AdminPanel from './pages/AdminPanel'; // Import the AdminPanel component
+import Home from './Home'; // Import the new Home.js component
+import AdminPanel from './pages/AdminPanel';
 import CareerResources from './pages/CareerResources';
 import Chatbot from './pages/Chatbot';
-import Dashboard from './pages/Dashboard'; // Import the Dashboard component
-import Login from './pages/Login'; // Import the Login component
+import Dashboard from './pages/Dashboard';
+import Login from './pages/Login';
 import Mentorship from './pages/Mentorship';
 import Networking from './pages/Networking';
-import Profile from './pages/Profile'; // Import the Profile component
+import Profile from './pages/Profile';
 import SearchResults from './pages/SearchResults';
 
 function App() {
@@ -76,7 +76,7 @@ function App() {
                 </>
               )}
             </ul>
-            <SearchBar /> {/* Use the SearchBar component here */}
+            <SearchBar />
           </nav>
         </header>
         <main className="App-main">
@@ -89,32 +89,12 @@ function App() {
             <Route path="/admin" element={isAdmin ? <AdminPanel /> : <Navigate to="/" />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/dashboard" element={isAdmin ? <Dashboard /> : <Navigate to="/" />} />
-            <Route path="/" element={<HomePage />} />
+            <Route path="/" element={<Home />} /> {/* Use the new Home component here */}
           </Routes>
         </main>
         <Footer />
       </div>
     </Router>
-  );
-}
-
-function HomePage() {
-  return (
-    <div className="home nunito-regular">
-      <div className="hero">
-        <img src={desktop} alt="Hero" />
-        <div className="hero-text">
-          <h1>Welcome to Career Development</h1>
-          <p>Explore resources, network with professionals, get mentorship, and chat with our AI for career guidance.</p>
-          <div className="home-buttons">
-            <Link to="/resources" className="home-button">Career Resources</Link>
-            <Link to="/networking" className="home-button">Networking Events</Link>
-            <Link to="/mentorship" className="home-button">Career Mentorship</Link>
-            <Link to="/chatbot" className="home-button">Career AI Chatbot</Link>
-          </div>
-        </div>
-      </div>
-    </div>
   );
 }
 
