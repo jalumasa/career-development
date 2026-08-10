@@ -1,127 +1,250 @@
-import { getAuth, signOut, updateEmail, updatePassword } from 'firebase/auth';
+import { getAuth, sendEmailVerification, sendPasswordResetEmail, signOut, updateEmail } from 'firebase/auth';
 import { doc, getDoc, getFirestore, updateDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
+import { FaCheckCircle, FaExclamationTriangle, FaGoogle } from 'react-icons/fa';
+import LoadingIndicator from '../components/LoadingIndicator';
 import './Profile.css';
 
-const Profile = () => {
-  const auth = getAuth();
-  const db = getFirestore();
-  const user = auth.currentUser;
+const auth = getAuth();
+const db = getFirestore();
 
-  const [profile, setProfile] = useState({
-    name: '',
-    information: '',
-    email: user.email,
-  });
-  const [newProfile, setNewProfile] = useState({
-    name: '',
-    information: '',
-    email: '',
-    password: '',
-  });
+const Profile = () => {
+  const user = auth.currentUser;
+  const isGoogleUser = user.providerData.some((p) => p.providerId === 'google.com');
+
+  const [profile, setProfile] = useState({ name: '', information: '' });
+  const [loading, setLoading] = useState(true);
+  const [newName, setNewName] = useState('');
+  const [newInformation, setNewInformation] = useState('');
+  const [newEmail, setNewEmail] = useState('');
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [savingEmail, setSavingEmail] = useState(false);
+  const [sendingReset, setSendingReset] = useState(false);
+  const [sendingVerification, setSendingVerification] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        if (userDoc.exists()) {
-          setProfile(userDoc.data());
+        const userRef = doc(db, 'users', user.uid);
+        const userDoc = await getDoc(userRef);
+        let data = userDoc.exists() ? userDoc.data() : {};
+
+        // Self-heal: accounts created before this field existed (or via
+        // Google, before that was wired up) may be missing a name even
+        // though Firebase Auth already has one from the sign-in provider.
+        if (!data.name && user.displayName) {
+          data = { ...data, name: user.displayName };
+          updateDoc(userRef, { name: user.displayName }).catch((err) =>
+            console.error('Failed to backfill name:', err)
+          );
         }
-      } catch (error) {
+
+        setProfile(data);
+      } catch (err) {
         setError('Failed to load profile.');
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchProfile();
-  }, [db, user.uid]);
+  }, [user.uid, user.displayName]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setNewProfile((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const handleProfileSubmit = async (e) => {
+    e.preventDefault();
+    setSavingProfile(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      const updated = {
+        name: newName.trim() || profile.name || '',
+        information: newInformation.trim() || profile.information || '',
+      };
+      await updateDoc(doc(db, 'users', user.uid), updated);
+      setProfile((prev) => ({ ...prev, ...updated }));
+      setNewName('');
+      setNewInformation('');
+      setSuccess('Profile updated.');
+    } catch (err) {
+      setError('Failed to update profile.');
+    } finally {
+      setSavingProfile(false);
+    }
   };
 
-  const handleSubmit = async (e) => {
+  const handleEmailSubmit = async (e) => {
     e.preventDefault();
+    if (!newEmail.trim()) return;
+    setSavingEmail(true);
+    setError(null);
+    setSuccess(null);
     try {
-      if (newProfile.email) {
-        await updateEmail(user, newProfile.email);
-        setProfile((prev) => ({
-          ...prev,
-          email: newProfile.email,
-        }));
+      await updateEmail(user, newEmail.trim());
+      await updateDoc(doc(db, 'users', user.uid), { email: newEmail.trim() });
+      setNewEmail('');
+      setSuccess('Email updated.');
+    } catch (err) {
+      if (err.code === 'auth/requires-recent-login') {
+        setError('This is a sensitive change — please log out and back in, then try again.');
+      } else if (err.code === 'auth/email-already-in-use') {
+        setError('That email is already in use by another account.');
+      } else {
+        setError('Failed to update email.');
       }
+    } finally {
+      setSavingEmail(false);
+    }
+  };
 
-      if (newProfile.password) {
-        await updatePassword(user, newProfile.password);
-      }
+  const handlePasswordReset = async () => {
+    setSendingReset(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      await sendPasswordResetEmail(auth, user.email);
+      setSuccess(`Password reset link sent to ${user.email}.`);
+    } catch (err) {
+      setError('Failed to send reset email.');
+    } finally {
+      setSendingReset(false);
+    }
+  };
 
-      await updateDoc(doc(db, 'users', user.uid), {
-        name: newProfile.name || profile.name,
-        information: newProfile.information || profile.information,
-      });
-
-      setProfile({
-        name: newProfile.name || profile.name,
-        information: newProfile.information || profile.information,
-        email: newProfile.email || profile.email,
-      });
-      setError(null);
-    } catch (error) {
-      setError('Failed to update profile.');
+  const handleResendVerification = async () => {
+    setSendingVerification(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      await sendEmailVerification(user);
+      setSuccess('Verification email sent.');
+    } catch (err) {
+      setError('Failed to send verification email.');
+    } finally {
+      setSendingVerification(false);
     }
   };
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
-    } catch (error) {
+    } catch (err) {
       setError('Failed to log out.');
     }
   };
 
+  const memberSince = user.metadata?.creationTime
+    ? new Date(user.metadata.creationTime).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
+    : null;
+
+  const initials = (profile.name || user.email || '?').trim().charAt(0).toUpperCase();
+
+  if (loading) {
+    return (
+      <div className="profile container">
+        <LoadingIndicator />
+      </div>
+    );
+  }
+
   return (
     <div className="profile container">
-      <h1>Profile</h1>
-      {error && <p className="error">{error}</p>}
-      <div className="profile-info">
-        <p>Name: {profile.name}</p>
-        <p>Email: {profile.email}</p>
-        <p>Information: {profile.information}</p>
+      <div className="profile-header">
+        {user.photoURL ? (
+          <img src={user.photoURL} alt="" className="profile-avatar" referrerPolicy="no-referrer" />
+        ) : (
+          <div className="profile-avatar profile-avatar-fallback">{initials}</div>
+        )}
+        <h1>{profile.name || 'Your Profile'}</h1>
+        {memberSince && <p className="profile-meta">Member since {memberSince}</p>}
       </div>
-      <form onSubmit={handleSubmit} className="profile-form">
-        <input
-          type="text"
-          name="name"
-          placeholder="New Name"
-          value={newProfile.name}
-          onChange={handleChange}
-        />
-        <textarea
-          name="information"
-          placeholder="New Information"
-          value={newProfile.information}
-          onChange={handleChange}
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="New Email"
-          value={newProfile.email}
-          onChange={handleChange}
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="New Password"
-          value={newProfile.password}
-          onChange={handleChange}
-        />
-        <button type="submit">Update Profile</button>
-      </form>
+
+      {error && <p className="error">{error}</p>}
+      {success && <p className="success">{success}</p>}
+
+      <section className="profile-section">
+        <h2>Profile</h2>
+        {profile.information && !newInformation && (
+          <p className="profile-current-value">{profile.information}</p>
+        )}
+        <form onSubmit={handleProfileSubmit} className="profile-form">
+          <div className="profile-form-group">
+            <label htmlFor="name">Name</label>
+            <input
+              id="name"
+              type="text"
+              placeholder={profile.name || 'Your name'}
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+            />
+          </div>
+          <div className="profile-form-group">
+            <label htmlFor="information">About</label>
+            <textarea
+              id="information"
+              placeholder={profile.information || 'A little about you'}
+              value={newInformation}
+              onChange={(e) => setNewInformation(e.target.value)}
+            />
+          </div>
+          <button type="submit" disabled={savingProfile}>
+            {savingProfile ? 'Saving…' : 'Save profile'}
+          </button>
+        </form>
+      </section>
+
+      <section className="profile-section">
+        <h2>Account &amp; Security</h2>
+
+        <div className="profile-account-row">
+          <span>Signed in with</span>
+          <span className="provider-badge">
+            {isGoogleUser ? <><FaGoogle /> Google</> : 'Email & password'}
+          </span>
+        </div>
+
+        <div className="profile-account-row">
+          <span>Email</span>
+          <span>{user.email}</span>
+        </div>
+
+        <div className="profile-account-row">
+          <span>Verification</span>
+          {user.emailVerified ? (
+            <span className="verified-badge"><FaCheckCircle /> Verified</span>
+          ) : (
+            <button type="button" className="link-button" onClick={handleResendVerification} disabled={sendingVerification}>
+              <FaExclamationTriangle /> {sendingVerification ? 'Sending…' : 'Not verified — resend email'}
+            </button>
+          )}
+        </div>
+
+        {!isGoogleUser && (
+          <>
+            <form onSubmit={handleEmailSubmit} className="profile-form">
+              <div className="profile-form-group">
+                <label htmlFor="new-email">Change email</label>
+                <input
+                  id="new-email"
+                  type="email"
+                  placeholder="New email address"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                />
+              </div>
+              <button type="submit" disabled={savingEmail || !newEmail.trim()}>
+                {savingEmail ? 'Updating…' : 'Update email'}
+              </button>
+            </form>
+
+            <button type="button" className="secondary-button" onClick={handlePasswordReset} disabled={sendingReset}>
+              {sendingReset ? 'Sending…' : 'Change password'}
+            </button>
+          </>
+        )}
+      </section>
+
       <button onClick={handleLogout} className="logout-button">Log Out</button>
     </div>
   );

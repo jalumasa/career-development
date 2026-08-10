@@ -1,92 +1,245 @@
 .profile {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #333;
-    border-radius: 8px;
-    color: #fff;
+  max-width: 600px;
+  margin: var(--space-6) auto;
+  padding: var(--space-6) var(--space-5);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  color: var(--color-text);
+  animation: fadeInUp 0.5s ease both;
+}
+
+.profile-header {
+  text-align: center;
+  margin-bottom: var(--space-6);
+}
+
+.profile-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto var(--space-4);
+  display: block;
+  border: 2px solid var(--color-border);
+}
+
+.profile-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gradient-brand);
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.6rem;
+}
+
+.profile-header h1 {
+  margin-bottom: var(--space-1);
+}
+
+.profile-meta {
+  color: var(--color-text-faint);
+  font-size: 0.85rem;
+}
+
+.profile-section {
+  padding: var(--space-5) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.profile-section:last-of-type {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.profile-section h2 {
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-4);
+}
+
+.profile-current-value {
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+  margin-bottom: var(--space-4);
+}
+
+.profile-account-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  font-size: 0.92rem;
+}
+
+.profile-account-row:first-child {
+  padding-top: 0;
+}
+
+.profile-account-row > span:first-child {
+  color: var(--color-text-faint);
+}
+
+.provider-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 600;
+}
+
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-success);
+  font-weight: 600;
+}
+
+.link-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: none;
+  border: none;
+  color: var(--color-danger);
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.link-button:hover {
+  text-decoration: underline;
+}
+
+.link-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.profile-form input,
+.profile-form textarea {
+  width: 100%;
+  padding: var(--space-3);
+  margin-bottom: var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface-raised);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.profile-form-group {
+  margin-bottom: var(--space-4);
+}
+
+.profile-form-group label {
+  display: block;
+  margin-bottom: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: 0.88rem;
+}
+
+.profile-form input::placeholder,
+.profile-form textarea::placeholder {
+  color: var(--color-text-faint);
+}
+
+.profile-form input:focus-visible,
+.profile-form textarea:focus-visible {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-glow);
+  outline: none;
+}
+
+.profile-form button {
+  width: 100%;
+  padding: var(--space-3);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--gradient-brand);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter var(--transition-fast), transform var(--transition-fast);
+}
+
+.profile-form button:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.profile-form button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  filter: none;
+  transform: none;
+}
+
+.secondary-button {
+  width: 100%;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-text);
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: var(--space-2);
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.secondary-button:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.secondary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.logout-button {
+  width: 100%;
+  padding: var(--space-3);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-sm);
+  background-color: transparent;
+  color: var(--color-danger);
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: var(--space-5);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.logout-button:hover {
+  background-color: var(--color-danger);
+  color: #fff;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .profile {
+    padding: var(--space-4);
   }
-  
-  .profile h1 {
-    text-align: center;
+}
+
+@media (max-width: 480px) {
+  .profile {
+    padding: var(--space-3);
+    margin: var(--space-4) var(--space-3);
   }
-  
-  .profile-info {
-    text-align: center;
-    margin-bottom: 20px;
+
+  .profile-account-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
   }
-  
-  .profile-form input,
-  .profile-form textarea {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 5px;
-    border: 1px solid #555;
-    background-color: #444;
-    color: #fff;
-  }
-  
-  .profile-form button {
-    width: 100%;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    background-color: #61dafb;
-    color: #1a1a1a;
-    cursor: pointer;
-  }
-  
-  .profile-form button:hover {
-    background-color: #21a1f1;
-  }
-  
-  .logout-button {
-    width: 100%;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    background-color: #ff4d4d;
-    color: #fff;
-    cursor: pointer;
-    margin-top: 20px;
-  }
-  
-  .logout-button:hover {
-    background-color: #ff1a1a;
-  }
-  
-  .error {
-    color: red;
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
-  .success {
-    color: green;
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
-  .profile-form-group {
-    margin-bottom: 15px;
-  }
-  
-  .profile-form-group label {
-    display: block;
-    margin-bottom: 5px;
-    color: #bbb;
-  }
-  
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .profile-container {
-      padding: 15px;
-    }
-  }
-  
-  @media (max-width: 480px) {
-    .profile-container {
-      padding: 10px;
-    }
-  }
+}
