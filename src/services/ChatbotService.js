@@ -1,11 +1,3 @@
-const API_KEY = process.env.REACT_APP_OPENAI_API_KEY;
-console.log('API Key:', API_KEY); // This should log your API key to the console
-
-const systemMessage = {
-  role: "system",
-  content: "You are a career development expert."
-};
-
 const fetchWithExponentialBackoff = async (url, options, retries = 5, backoff = 300) => {
   try {
     const response = await fetch(url, options);
@@ -20,43 +12,44 @@ const fetchWithExponentialBackoff = async (url, options, retries = 5, backoff = 
   }
 };
 
-export const getChatbotResponse = async (message) => {
-  const apiMessages = [
-    { role: "user", content: message }
-  ];
+// Streams the assistant's reply as plain text chunks. `onChunk` is called
+// with each incremental piece of text as it arrives so the UI can render a
+// live typing effect; resolves with the full accumulated text at the end.
+export const streamChatbotResponse = async (message, history, onChunk) => {
+  const response = await fetchWithExponentialBackoff('/api/chatbot', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ message, history })
+  });
 
-  const apiRequestBody = {
-    model: "gpt-4o-mini",
-    messages: [
-      systemMessage,
-      ...apiMessages
-    ]
-  };
-
-  console.log('API Request:', JSON.stringify(apiRequestBody, null, 2)); // Log the API request body
-
-  try {
-    const response = await fetchWithExponentialBackoff("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(apiRequestBody)
-    });
-
-    const data = await response.json();
-
-    console.log('API Response:', JSON.stringify(data, null, 2)); // Log the API response
-
-    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-      console.error('API response:', data);
-      throw new Error('Invalid response from ChatGPT API');
+  if (!response.ok || !response.body) {
+    let errorMessage = 'Failed to get a response from the chatbot';
+    try {
+      const data = await response.json();
+      if (data.error) errorMessage = data.error;
+    } catch {
+      // Response wasn't JSON (e.g. a partial stream failure) — use the default message.
     }
-
-    return { text: data.choices[0].message.content, user: "ChatGPT" };
-  } catch (error) {
-    console.error('Error in getChatbotResponse:', error);
-    throw error;
+    throw new Error(errorMessage);
   }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let fullText = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    const chunk = decoder.decode(value, { stream: true });
+    fullText += chunk;
+    onChunk?.(chunk, fullText);
+  }
+
+  if (!fullText.trim()) {
+    throw new Error('Empty response from the chatbot');
+  }
+
+  return fullText;
 };
