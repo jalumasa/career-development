@@ -1,45 +1,65 @@
 import { useState } from 'react';
+import { FaCompass } from 'react-icons/fa';
 import ChatInput from '../components/ChatInput';
 import ChatWindow from '../components/ChatWindow';
-import { getChatbotResponse } from '../services/ChatbotService';
+import chatSuggestions from '../data/chatSuggestions';
+import { streamChatbotResponse } from '../services/ChatbotService';
 import './Chatbot.css';
 
+const GREETING = "Hi, I'm Compass — your AI career guide. Ask me anything about your career, from resume feedback to negotiating an offer.";
+
+const newMessage = (role, content) => ({ id: crypto.randomUUID(), role, content });
+
 const Chatbot = () => {
-  const [messages, setMessages] = useState([
-    {
-      message: "Hello, I'm CareerBot, your career development expert! Ask me anything!",
-      sentTime: "just now",
-      sender: "ChatGPT"
-    }
-  ]);
-  const [isTyping, setIsTyping] = useState(false);
+  const [messages, setMessages] = useState([newMessage('assistant', GREETING)]);
+  const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState(null);
 
-  const handleSendMessage = async (message) => {
-    const userMessage = { message, direction: 'outgoing', sender: 'user' };
-    setMessages([...messages, userMessage]);
+  const sendMessage = async (text) => {
     setError(null);
 
-    setIsTyping(true);
+    const history = messages.map(({ role, content }) => ({ role, content }));
+    const placeholder = newMessage('assistant', '');
+
+    setMessages((prev) => [...prev, newMessage('user', text), placeholder]);
+    setIsStreaming(true);
+
     try {
-      const botResponse = await getChatbotResponse(message);
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { message: botResponse.text, sender: "ChatGPT" }
-      ]);
-    } catch (error) {
-      console.error('Error getting chatbot response:', error);
-      setError('Sorry, I encountered an error. Please try again later.');
+      await streamChatbotResponse(text, history, (_chunk, fullText) => {
+        setMessages((prev) =>
+          prev.map((m) => (m.id === placeholder.id ? { ...m, content: fullText } : m))
+        );
+      });
+    } catch (err) {
+      console.error('Error getting chatbot response:', err);
+      setError('Sorry, I ran into a problem. Please try again.');
+      setMessages((prev) => prev.filter((m) => m.id !== placeholder.id));
+    } finally {
+      setIsStreaming(false);
     }
-    setIsTyping(false);
   };
 
   return (
-    <div className="chatbot-container">
-      <h1>Career AI Chatbot</h1>
-      <ChatWindow messages={messages} isTyping={isTyping} />
-      <ChatInput onSendMessage={handleSendMessage} />
-      {error && <p className="error-message">{error}</p>}
+    <div className="chatbot-page">
+      <div className="chatbot-shell">
+        <header className="chatbot-header">
+          <span className="chatbot-header-icon"><FaCompass /></span>
+          <div>
+            <h1>Compass AI</h1>
+            <p>Your AI career guide</p>
+          </div>
+        </header>
+
+        <ChatWindow
+          messages={messages}
+          suggestions={chatSuggestions}
+          onSuggestionClick={sendMessage}
+        />
+
+        {error && <p className="chatbot-error">{error}</p>}
+
+        <ChatInput onSendMessage={sendMessage} disabled={isStreaming} />
+      </div>
     </div>
   );
 };
