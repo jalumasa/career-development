@@ -1,0 +1,24 @@
+.resource-card {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.resource-card h2 {
+  margin-bottom: var(--space-2);
+}
+
+.resource-card p {
+  color: var(--color-text-muted);
+  flex: 1;
+}
+
+.resource-card-meta {
+  display: block;
+  margin-top: var(--space-3);
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--color-primary);
+}
