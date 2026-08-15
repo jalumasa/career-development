@@ -1,0 +1,56 @@
+.near-me-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.near-me-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-primary);
+  background: none;
+  color: var(--color-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.near-me-button:hover:not(:disabled) {
+  background: var(--gradient-brand);
+  border-color: transparent;
+  color: #fff;
+}
+
+.near-me-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.near-me-status {
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+}
+
+.near-me-status-error {
+  color: var(--color-danger);
+}
+
+.link-button-inline {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  font-size: inherit;
+}
+
+.link-button-inline:hover {
+  text-decoration: underline;
+}
