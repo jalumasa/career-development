@@ -1,0 +1,66 @@
+.mentorship-page h1 {
+  margin-bottom: var(--space-2);
+}
+
+.mentorship-page .card-grid {
+  margin-bottom: var(--space-7);
+}
+
+.mentorship-booking-section {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+  scroll-margin-top: var(--space-6);
+}
+
+.booking-form button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
+}
+
+.my-bookings {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-5);
+}
+
+.my-bookings h2 {
+  font-size: 1.05rem;
+  margin-bottom: var(--space-4);
+}
+
+.my-bookings-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.my-bookings-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface-raised);
+  font-size: 0.92rem;
+}
+
+.my-bookings-date {
+  color: var(--color-text-faint);
+  font-weight: 400;
+}
+
+@media (max-width: 768px) {
+  .mentorship-booking-section {
+    grid-template-columns: 1fr;
+  }
+}

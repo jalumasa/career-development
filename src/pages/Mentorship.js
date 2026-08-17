@@ -1,31 +1,100 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import BookingForm from '../components/BookingForm';
+import LoadingIndicator from '../components/LoadingIndicator';
 import MentorItem from '../components/MentorItem';
-import { collection, db, getDocs } from '../firebase'; // Import Firebase config and Firestore functions
+import { auth, db, fetchCollection } from '../firebase';
+import './Mentorship.css';
+
+const formatDate = (isoDate) => {
+  if (!isoDate) return '';
+  const [year, month, day] = isoDate.split('-').map(Number);
+  return new Date(year, (month || 1) - 1, day || 1).toLocaleDateString('en-US', {
+    month: 'short', day: 'numeric', year: 'numeric',
+  });
+};
 
 const Mentorship = () => {
   const [mentors, setMentors] = useState([]);
+  const [bookings, setBookings] = useState([]);
+  const [selectedMentorId, setSelectedMentorId] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchMentors = async () => {
-      const mentorsData = [];
-      const querySnapshot = await getDocs(collection(db, 'mentors'));
-      querySnapshot.forEach((doc) => {
-        mentorsData.push(doc.data());
-      });
-      setMentors(mentorsData);
-    };
-
-    fetchMentors();
+  const loadBookings = useCallback(async () => {
+    try {
+      const q = query(collection(db, 'bookings'), where('userId', '==', auth.currentUser.uid));
+      const snapshot = await getDocs(q);
+      const myBookings = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      myBookings.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+      setBookings(myBookings);
+    } catch (error) {
+      // Booking history is a nice-to-have on this page — if it fails (e.g. a
+      // Firestore rules gap), that shouldn't also take down the mentor list.
+      console.error('Error fetching your bookings:', error);
+    }
   }, []);
 
+  useEffect(() => {
+    const loadMentors = async () => {
+      try {
+        setMentors(await fetchCollection('mentors'));
+      } catch (error) {
+        console.error('Error fetching mentors:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadMentors();
+    loadBookings();
+  }, [loadBookings]);
+
+  const handleBook = (mentor) => {
+    setSelectedMentorId(mentor.id);
+    document.getElementById('booking-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  if (loading) {
+    return (
+      <div className="container mentorship-page">
+        <LoadingIndicator />
+      </div>
+    );
+  }
+
   return (
-    <div className="container">
+    <div className="container mentorship-page">
       <h1>Career Mentorship</h1>
-      {mentors.map((mentor, index) => (
-        <MentorItem key={index} mentor={mentor} />
-      ))}
-      <BookingForm mentors={mentors} />
+      <p className="page-subtitle">Browse mentors working in the field you're aiming for, and request time with them.</p>
+
+      <div className="card-grid">
+        {mentors.map((mentor) => (
+          <MentorItem key={mentor.id} mentor={mentor} onBook={handleBook} />
+        ))}
+      </div>
+
+      <div id="booking-form" className="mentorship-booking-section">
+        <BookingForm mentors={mentors} selectedMentorId={selectedMentorId} onBooked={loadBookings} />
+
+        {bookings.length > 0 && (
+          <div className="my-bookings">
+            <h2>Your requests</h2>
+            <ul className="my-bookings-list">
+              {bookings.map((booking) => (
+                <li key={booking.id} className="my-bookings-item">
+                  <div>
+                    <strong>{booking.mentorName}</strong>
+                    <span className="my-bookings-date"> · {formatDate(booking.date)}</span>
+                  </div>
+                  <span className={`booking-status booking-status-${booking.status || 'pending'}`}>
+                    {booking.status || 'pending'}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
