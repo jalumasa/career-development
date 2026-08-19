@@ -1,29 +1,44 @@
-.container {
-  max-width: 1200px;
-  margin: 20px auto;
-  padding: 20px;
-  overflow: hidden; /* Hide overflow to avoid unnecessary scrolling */
-}
-
 .chart-container {
   display: flex;
   justify-content: center;
-  align-items: center; /* Center the chart container */
-  margin-bottom: 20px; /* Add space between chart and stats */
+  align-items: center;
+  margin-bottom: var(--space-5);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
 }
 
 .chart {
   width: 100%;
-  max-width: 500px; /* Reduce max-width to ensure better fit */
-  height: auto; /* Auto height to maintain aspect ratio */
+  max-width: 500px;
+  height: auto;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: center;
+}
+
+.stat-item {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-5);
+  font-weight: 600;
+  flex: 1;
+  min-width: 180px;
+  text-align: center;
 }
 
 .summary {
-  text-align: center; /* Center align the summary text */
-  margin-top: 20px; /* Add some space above the summary */
+  text-align: center;
+  margin-top: var(--space-5);
 }
 
 .summary p {
-  font-size: 1.2em; /* Increase font size for better readability */
-  margin: 5px 0; /* Add some margin between the lines */
+  font-size: 1.2em;
+  margin: var(--space-1) 0;
 }

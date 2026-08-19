@@ -1,63 +1,166 @@
 .admin-panel {
   max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: #333;
-  border-radius: 8px;
-  color: #fff;
+  margin: var(--space-6) auto;
+  padding: var(--space-6) var(--space-5);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  color: var(--color-text);
 }
 
 .admin-section {
-  margin-bottom: 30px;
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-6);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.admin-section:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 .admin-section h2 {
-  margin-bottom: 10px;
+  margin-bottom: var(--space-3);
+  font-size: 1.1rem;
+}
+
+.admin-section h3 {
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-2);
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 .admin-section input,
 .admin-section textarea {
   width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 5px;
-  border: 1px solid #555;
-  background-color: #444;
-  color: #fff;
+  padding: var(--space-3);
+  margin-bottom: var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface-raised);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.admin-section input:focus-visible,
+.admin-section textarea:focus-visible {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-glow);
+  outline: none;
 }
 
 .admin-section button {
-  padding: 10px 20px;
+  padding: var(--space-3) var(--space-5);
   border: none;
-  border-radius: 5px;
-  background-color: #61dafb;
-  color: #1a1a1a;
+  border-radius: var(--radius-sm);
+  background: var(--gradient-brand);
+  color: #fff;
+  font-weight: 600;
   cursor: pointer;
+  transition: filter var(--transition-fast), transform var(--transition-fast);
 }
 
 .admin-section button:hover {
-  background-color: #21a1f1;
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.admin-section button.secondary-action-button {
+  background: none;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  margin-left: var(--space-3);
+}
+
+.admin-section button.secondary-action-button:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.admin-section button.secondary-action-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .admin-section ul {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
 .admin-section li {
   display: flex;
   justify-content: space-between;
-  background-color: #444;
-  margin-bottom: 10px;
-  padding: 10px;
-  border-radius: 5px;
+  align-items: center;
+  background-color: var(--color-surface-raised);
+  margin-bottom: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
 }
 
 .admin-section li button {
-  background-color: #ff4d4d;
-  color: #fff;
+  background: none;
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+  padding: var(--space-1) var(--space-3);
+  font-size: 0.85rem;
 }
 
 .admin-section li button:hover {
-  background-color: #ff1a1a;
+  background-color: var(--color-danger);
+  color: #fff;
+}
+
+.admin-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.admin-checkbox-label input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+.admin-field-label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--color-text-faint);
+  margin-bottom: var(--space-1);
+}
+
+.admin-empty {
+  color: var(--color-text-faint);
+  font-size: 0.9rem;
+}
+
+.admin-booking-item {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-2);
+}
+
+.admin-booking-item .booking-status {
+  margin-left: var(--space-2);
+}
+
+.admin-booking-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.admin-booking-actions button {
+  padding: var(--space-1) var(--space-3);
+  font-size: 0.85rem;
+  margin-left: 0;
 }

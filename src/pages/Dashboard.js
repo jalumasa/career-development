@@ -1,7 +1,9 @@
 import { BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip } from 'chart.js';
-import { collection, getDocs, getFirestore } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
+import LoadingIndicator from '../components/LoadingIndicator';
+import { db } from '../firebase';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -11,22 +13,29 @@ const Dashboard = () => {
     resourceViews: 0,
     mentorBookings: 0,
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const db = getFirestore();
-
     const fetchData = async () => {
-      const usersSnapshot = await getDocs(collection(db, 'users'));
-      const resourcesSnapshot = await getDocs(collection(db, 'resources'));
-      const bookingsSnapshot = await getDocs(collection(db, 'bookings')); 
+      try {
+        // Only the document counts are needed, and the three reads are
+        // independent — no reason to wait for each one in turn.
+        const [usersSnapshot, resourcesSnapshot, bookingsSnapshot] = await Promise.all([
+          getDocs(collection(db, 'users')),
+          getDocs(collection(db, 'resources')),
+          getDocs(collection(db, 'bookings')),
+        ]);
 
-      const mentorBookingCount = bookingsSnapshot.size; 
-
-      setStats({
-        activeUsers: usersSnapshot.size,
-        resourceViews: resourcesSnapshot.size,
-        mentorBookings: mentorBookingCount, 
-      });
+        setStats({
+          activeUsers: usersSnapshot.size,
+          resourceViews: resourcesSnapshot.size,
+          mentorBookings: bookingsSnapshot.size,
+        });
+      } catch (error) {
+        console.error('Error fetching dashboard stats:', error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchData();
@@ -39,16 +48,17 @@ const Dashboard = () => {
         label: '',
         data: [stats.activeUsers, stats.resourceViews, stats.mentorBookings],
         backgroundColor: [
-          'rgba(75, 192, 192, 0.2)',
-          'rgba(153, 102, 255, 0.2)',
-          'rgba(255, 159, 64, 0.2)',
+          'rgba(99, 102, 241, 0.35)',
+          'rgba(59, 130, 246, 0.35)',
+          'rgba(20, 184, 166, 0.35)',
         ],
         borderColor: [
-          'rgba(75, 192, 192, 1)',
-          'rgba(153, 102, 255, 1)',
-          'rgba(255, 159, 64, 1)',
+          '#6366f1',
+          '#3b82f6',
+          '#14b8a6',
         ],
-        borderWidth: 1,
+        borderWidth: 2,
+        borderRadius: 6,
       },
     ],
   };
@@ -66,8 +76,14 @@ const Dashboard = () => {
       },
     },
     scales: {
+      x: {
+        ticks: { color: '#9fb0c9' },
+        grid: { color: '#253148' },
+      },
       y: {
         beginAtZero: true,
+        ticks: { color: '#9fb0c9' },
+        grid: { color: '#253148' },
       },
     },
   };
@@ -75,16 +91,22 @@ const Dashboard = () => {
   return (
     <div className="container">
       <h1>Admin Dashboard</h1>
-      <div className="chart-container">
-        <div className="chart">
-          <Bar data={data} options={options} />
-        </div>
-      </div>
-      <div className="stats">
-        <div className="stat-item">Active Users: {stats.activeUsers}</div>
-        <div className="stat-item">Resource Views: {stats.resourceViews}</div>
-        <div className="stat-item">Mentor Bookings: {stats.mentorBookings}</div>
-      </div>
+      {loading ? (
+        <LoadingIndicator />
+      ) : (
+        <>
+          <div className="chart-container">
+            <div className="chart">
+              <Bar data={data} options={options} />
+            </div>
+          </div>
+          <div className="stats">
+            <div className="stat-item">Active Users: {stats.activeUsers}</div>
+            <div className="stat-item">Resource Views: {stats.resourceViews}</div>
+            <div className="stat-item">Mentor Bookings: {stats.mentorBookings}</div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
