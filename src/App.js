@@ -1,7 +1,7 @@
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
-import { FaBars, FaMoon, FaSun, FaTimes } from 'react-icons/fa';
+import { FaBars, FaBell, FaMoon, FaSun, FaTimes, FaUserCircle } from 'react-icons/fa';
 import { BrowserRouter as Router, Link, NavLink, Navigate, Route, Routes } from 'react-router-dom';
 import './App.css';
 import Logo from './components/Logo';
@@ -98,12 +98,6 @@ function App() {
                 <li><NavLink to="/networking" onClick={closeMenu}>Networking</NavLink></li>
                 <li><NavLink to="/mentorship" onClick={closeMenu}>Mentorship</NavLink></li>
                 <li><NavLink to="/chatbot" onClick={closeMenu}>Chatbot</NavLink></li>
-                {user && (
-                  <>
-                    <li><NavLink to="/notifications" onClick={closeMenu}>Notifications</NavLink></li>
-                    <li><NavLink to="/profile" onClick={closeMenu}>Profile</NavLink></li>
-                  </>
-                )}
                 {user && isAdmin && (
                   <>
                     <li><NavLink to="/admin" onClick={closeMenu}>Admin</NavLink></li>
@@ -115,6 +109,16 @@ function App() {
                 <SearchBar onSearch={closeMenu} />
                 {!user && <NavLink to="/login" onClick={closeMenu} className="nav-cta">Login</NavLink>}
               </div>
+              {user && (
+                <div className="nav-icons">
+                  <NavLink to="/notifications" onClick={closeMenu} className="nav-icon-button" aria-label="Notifications">
+                    <FaBell /> <span className="nav-icon-label">Notifications</span>
+                  </NavLink>
+                  <NavLink to="/profile" onClick={closeMenu} className="nav-icon-button" aria-label="Profile">
+                    <FaUserCircle /> <span className="nav-icon-label">Profile</span>
+                  </NavLink>
+                </div>
+              )}
             </div>
 
             <button
