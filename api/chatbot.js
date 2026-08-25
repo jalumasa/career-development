@@ -1,6 +1,35 @@
 const Anthropic = require('@anthropic-ai/sdk');
+const { verifyRequestUser } = require('./_lib/firebaseAdmin');
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+// Every call here spends Anthropic credits, so the endpoint is signed-in only.
+const MAX_MESSAGE_CHARS = 8000;
+const MAX_HISTORY_TURNS = 20;
+
+// Best-effort per-user throttle. Vercel runs each instance in its own memory,
+// so a spread-out flood can still get more than this — it is a speed bump
+// against one runaway client, not a real quota. A durable limit would need
+// shared state (Firestore or Redis) keyed by uid.
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX_REQUESTS = 15;
+const recentRequests = new Map();
+
+function isRateLimited(uid) {
+  const now = Date.now();
+  const hits = (recentRequests.get(uid) || []).filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
+  hits.push(now);
+  recentRequests.set(uid, hits);
+
+  // Keep the map from growing without bound on a long-lived warm instance.
+  if (recentRequests.size > 1000) {
+    for (const [key, times] of recentRequests) {
+      if (times.every((t) => now - t >= RATE_LIMIT_WINDOW_MS)) recentRequests.delete(key);
+    }
+  }
+
+  return hits.length > RATE_LIMIT_MAX_REQUESTS;
+}
 
 // Haiku is the cheapest current model (~5x cheaper than Opus) and handles
 // conversational career advice well — the detailed system prompt below does
@@ -43,16 +72,33 @@ module.exports = async function handler(req, res) {
     return;
   }
 
+  const user = await verifyRequestUser(req);
+  if (!user) {
+    res.status(401).json({ error: 'You need to be signed in to use Compass AI.' });
+    return;
+  }
+
+  if (isRateLimited(user.uid)) {
+    res.status(429).json({ error: "That's a lot of questions at once — give it a moment and try again." });
+    return;
+  }
+
   const { message, history } = req.body || {};
   if (!message || typeof message !== 'string') {
     res.status(400).json({ error: 'A "message" string is required' });
     return;
   }
 
+  if (message.length > MAX_MESSAGE_CHARS) {
+    res.status(413).json({ error: 'That message is too long — try trimming it down.' });
+    return;
+  }
+
   const priorMessages = Array.isArray(history)
     ? history
         .filter((m) => m && typeof m.content === 'string' && (m.role === 'user' || m.role === 'assistant'))
-        .slice(-20)
+        .slice(-MAX_HISTORY_TURNS)
+        .map((m) => ({ role: m.role, content: m.content.slice(0, MAX_MESSAGE_CHARS) }))
     : [];
 
   res.setHeader('Content-Type', 'text/plain; charset=utf-8');

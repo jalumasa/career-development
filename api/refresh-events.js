@@ -1,14 +1,5 @@
-const { initializeApp, cert, getApps } = require('firebase-admin/app');
-const { getFirestore } = require('firebase-admin/firestore');
+const { getDb } = require('./_lib/firebaseAdmin');
 const { refreshEvents, validateEvents } = require('./_lib/refreshEvents');
-
-function getDb() {
-  if (getApps().length === 0) {
-    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
-    initializeApp({ credential: cert(serviceAccount) });
-  }
-  return getFirestore();
-}
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {

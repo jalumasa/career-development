@@ -1,3 +1,5 @@
+import { auth } from '../firebase';
+
 const fetchWithExponentialBackoff = async (url, options, retries = 5, backoff = 300) => {
   try {
     const response = await fetch(url, options);
@@ -16,10 +18,20 @@ const fetchWithExponentialBackoff = async (url, options, retries = 5, backoff = 
 // with each incremental piece of text as it arrives so the UI can render a
 // live typing effect; resolves with the full accumulated text at the end.
 export const streamChatbotResponse = async (message, history, onChunk) => {
+  // The endpoint spends API credits, so it verifies this token server-side
+  // rather than trusting that the caller came from the signed-in UI.
+  // getIdToken() refreshes it automatically when it is close to expiring.
+  const user = auth.currentUser;
+  if (!user) {
+    throw new Error('You need to be signed in to use Compass AI.');
+  }
+  const token = await user.getIdToken();
+
   const response = await fetchWithExponentialBackoff('/api/chatbot', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
     },
     body: JSON.stringify({ message, history })
   });
