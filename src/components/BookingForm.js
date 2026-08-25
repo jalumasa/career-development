@@ -4,6 +4,13 @@ import { addDoc, auth, collection, db } from '../firebase';
 
 const EMPTY_FORM = { name: '', email: '', mentorId: '', date: '' };
 
+/** Local (not UTC) `YYYY-MM-DD`, so the picker's floor matches the user's own today. */
+const today = () => {
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  return new Date(now.getTime() - offset).toISOString().slice(0, 10);
+};
+
 const BookingForm = ({ mentors, selectedMentorId, onBooked }) => {
   const user = auth.currentUser;
   const [formData, setFormData] = useState({
@@ -31,6 +38,12 @@ const BookingForm = ({ mentors, selectedMentorId, onBooked }) => {
     const mentor = mentors.find((m) => m.id === formData.mentorId);
     if (!mentor) {
       setError('Please select a mentor.');
+      return;
+    }
+
+    // The `min` on the input stops the picker, but not a typed or pasted date.
+    if (formData.date < today()) {
+      setError('Please pick a date in the future.');
       return;
     }
 
@@ -70,7 +83,7 @@ const BookingForm = ({ mentors, selectedMentorId, onBooked }) => {
           <option key={mentor.id} value={mentor.id}>{mentor.name} — {mentor.specialty}</option>
         ))}
       </select>
-      <input type="date" name="date" value={formData.date} onChange={handleChange} required />
+      <input type="date" name="date" value={formData.date} onChange={handleChange} min={today()} required />
       <button type="submit" disabled={submitting}>{submitting ? 'Sending…' : 'Submit'}</button>
       {error && <p className="error">{error}</p>}
       {success && <p className="success">{success}</p>}

@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import CategoryFilter from '../components/CategoryFilter';
+import ErrorState from '../components/ErrorState';
 import LoadingIndicator from '../components/LoadingIndicator';
 import ResourceItem from '../components/ResourceItem';
 import { fetchCollection } from '../firebase';
@@ -9,20 +10,24 @@ const CareerResources = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  const loadResources = useCallback(async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      setResources(await fetchCollection('resources'));
+    } catch (err) {
+      console.error('Error fetching resources:', err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const loadResources = async () => {
-      try {
-        setResources(await fetchCollection('resources'));
-      } catch (error) {
-        console.error('Error fetching resources:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadResources();
-  }, []);
+  }, [loadResources]);
 
   const term = searchTerm.toLowerCase();
   const filteredResources = resources.filter((resource) => {
@@ -48,6 +53,8 @@ const CareerResources = () => {
 
       {loading ? (
         <LoadingIndicator />
+      ) : error ? (
+        <ErrorState message="We couldn't load the resources right now." onRetry={loadResources} />
       ) : filteredResources.length === 0 ? (
         <p className="empty-state">No resources match your search yet.</p>
       ) : (

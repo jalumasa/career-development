@@ -1,11 +1,22 @@
 import { addDoc, collection, deleteDoc, doc, serverTimestamp, updateDoc, writeBatch } from 'firebase/firestore';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import ErrorState from '../components/ErrorState';
 import LoadingIndicator from '../components/LoadingIndicator';
 import articleSeeds from '../data/articleSeeds';
 import eventSeeds from '../data/eventSeeds';
 import mentorSeeds from '../data/mentorSeeds';
 import { db, fetchCollection } from '../firebase';
 import './AdminPanel.css';
+
+/**
+ * Firestore rejects a write the rules don't allow with `permission-denied`.
+ * That used to surface only in the console, so a button that couldn't
+ * possibly work looked identical to one that simply hadn't been clicked.
+ */
+const describeWriteError = (error) =>
+  error?.code === 'permission-denied'
+    ? "Your account doesn't have permission for that — check the Firestore rules."
+    : 'Please try again.';
 
 const EMPTY_RESOURCE = { title: '', category: '', summary: '', content: '' };
 const EMPTY_MENTOR = { name: '', bio: '', specialty: '', contactEmail: '' };
@@ -33,6 +44,8 @@ const AdminPanel = () => {
   const [users, setUsers] = useState([]);
   const [seeding, setSeeding] = useState(null); // which collection is seeding, if any
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [actionError, setActionError] = useState(null);
 
   // Maps a collection name to the setter that holds its documents, so the
   // reload/delete paths don't need a branch per collection.
@@ -46,31 +59,34 @@ const AdminPanel = () => {
     [setters]
   );
 
-  useEffect(() => {
-    const loadAll = async () => {
-      try {
-        // Independent reads — no reason to wait for each one in turn.
-        const [resourcesData, eventsData, mentorsData, bookingsData, usersData] = await Promise.all([
-          fetchCollection('resources'),
-          fetchCollection('events'),
-          fetchCollection('mentors'),
-          fetchCollection('bookings'),
-          fetchCollection('users'),
-        ]);
-        setResources(resourcesData);
-        setNetworkingEvents(eventsData);
-        setMentors(mentorsData);
-        setBookings(bookingsData);
-        setUsers(usersData);
-      } catch (error) {
-        console.error('Error fetching data: ', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadAll();
+  const loadAll = useCallback(async () => {
+    setLoading(true);
+    setLoadError(false);
+    try {
+      // Independent reads — no reason to wait for each one in turn.
+      const [resourcesData, eventsData, mentorsData, bookingsData, usersData] = await Promise.all([
+        fetchCollection('resources'),
+        fetchCollection('events'),
+        fetchCollection('mentors'),
+        fetchCollection('bookings'),
+        fetchCollection('users'),
+      ]);
+      setResources(resourcesData);
+      setNetworkingEvents(eventsData);
+      setMentors(mentorsData);
+      setBookings(bookingsData);
+      setUsers(usersData);
+    } catch (error) {
+      console.error('Error fetching data: ', error);
+      setLoadError(true);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadAll();
+  }, [loadAll]);
 
   const handleChange = (e, setState, state) => {
     const { name, value, type, checked } = e.target;
@@ -92,6 +108,7 @@ const AdminPanel = () => {
 
   /** Adds one document, resets its form, and refreshes that collection's list. */
   const addItem = async ({ collectionName, value, reset, notifyType, describe }) => {
+    setActionError(null);
     try {
       await addDoc(collection(db, collectionName), value);
       reset();
@@ -99,12 +116,14 @@ const AdminPanel = () => {
       await notifyAllUsers(notifyType, describe(value));
     } catch (error) {
       console.error(`Error adding to ${collectionName}: `, error);
+      setActionError(`Couldn't save that. ${describeWriteError(error)}`);
     }
   };
 
   /** Batch-writes any starter documents not already present, matched on `keyField`. */
   const seedCollection = async ({ collectionName, seeds, keyField, existing, notifyType, label }) => {
     setSeeding(collectionName);
+    setActionError(null);
     try {
       const existingKeys = new Set(existing.map((item) => item[keyField]));
       const missing = seeds.filter((seed) => !existingKeys.has(seed[keyField]));
@@ -121,26 +140,31 @@ const AdminPanel = () => {
       );
     } catch (error) {
       console.error(`Error seeding ${collectionName}: `, error);
+      setActionError(`Couldn't load the starter ${label}s. ${describeWriteError(error)}`);
     } finally {
       setSeeding(null);
     }
   };
 
   const handleBookingStatus = async (id, status) => {
+    setActionError(null);
     try {
       await updateDoc(doc(db, 'bookings', id), { status });
       await reload('bookings');
     } catch (error) {
       console.error('Error updating booking status: ', error);
+      setActionError(`Couldn't update that booking. ${describeWriteError(error)}`);
     }
   };
 
   const handleDelete = async (collectionName, id) => {
+    setActionError(null);
     try {
       await deleteDoc(doc(db, collectionName, id));
       await reload(collectionName);
     } catch (error) {
       console.error(`Error deleting from ${collectionName}: `, error);
+      setActionError(`Couldn't delete that ${collectionName.replace(/s$/, '')}. ${describeWriteError(error)}`);
     }
   };
 
@@ -153,9 +177,20 @@ const AdminPanel = () => {
     );
   }
 
+  if (loadError) {
+    return (
+      <div className="admin-panel">
+        <h1>Admin Panel</h1>
+        <ErrorState message="We couldn't load the admin data right now." onRetry={loadAll} />
+      </div>
+    );
+  }
+
   return (
     <div className="admin-panel">
       <h1>Admin Panel</h1>
+
+      {actionError && <p className="error admin-action-error">{actionError}</p>}
 
       <div className="admin-section">
         <h2>Add Resource</h2>

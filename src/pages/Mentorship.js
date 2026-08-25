@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import BookingForm from '../components/BookingForm';
+import ErrorState from '../components/ErrorState';
 import LoadingIndicator from '../components/LoadingIndicator';
 import MentorItem from '../components/MentorItem';
 import { auth, db, fetchCollection } from '../firebase';
@@ -19,6 +20,7 @@ const Mentorship = () => {
   const [bookings, setBookings] = useState([]);
   const [selectedMentorId, setSelectedMentorId] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   const loadBookings = useCallback(async () => {
     try {
@@ -34,20 +36,23 @@ const Mentorship = () => {
     }
   }, []);
 
-  useEffect(() => {
-    const loadMentors = async () => {
-      try {
-        setMentors(await fetchCollection('mentors'));
-      } catch (error) {
-        console.error('Error fetching mentors:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const loadMentors = useCallback(async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      setMentors(await fetchCollection('mentors'));
+    } catch (err) {
+      console.error('Error fetching mentors:', err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
+  useEffect(() => {
     loadMentors();
     loadBookings();
-  }, [loadBookings]);
+  }, [loadMentors, loadBookings]);
 
   const handleBook = (mentor) => {
     setSelectedMentorId(mentor.id);
@@ -67,11 +72,17 @@ const Mentorship = () => {
       <h1>Career Mentorship</h1>
       <p className="page-subtitle">Browse mentors working in the field you're aiming for, and request time with them.</p>
 
-      <div className="card-grid">
-        {mentors.map((mentor) => (
-          <MentorItem key={mentor.id} mentor={mentor} onBook={handleBook} />
-        ))}
-      </div>
+      {error ? (
+        <ErrorState message="We couldn't load the mentors right now." onRetry={loadMentors} />
+      ) : mentors.length === 0 ? (
+        <p className="empty-state">No mentors are listed yet — check back soon.</p>
+      ) : (
+        <div className="card-grid">
+          {mentors.map((mentor) => (
+            <MentorItem key={mentor.id} mentor={mentor} onBook={handleBook} />
+          ))}
+        </div>
+      )}
 
       <div id="booking-form" className="mentorship-booking-section">
         <BookingForm mentors={mentors} selectedMentorId={selectedMentorId} onBooked={loadBookings} />

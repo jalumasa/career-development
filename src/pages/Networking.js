@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { FaLocationArrow } from 'react-icons/fa';
 import CategoryFilter from '../components/CategoryFilter';
+import ErrorState from '../components/ErrorState';
 import EventItem from '../components/EventItem';
 import LoadingIndicator from '../components/LoadingIndicator';
 import { fetchCollection } from '../firebase';
@@ -15,23 +16,27 @@ const Networking = () => {
   const [activeCategory, setActiveCategory] = useState('All');
   const [nearMeOnly, setNearMeOnly] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const geolocation = useGeolocation();
 
-  useEffect(() => {
-    const loadEvents = async () => {
-      try {
-        const eventsData = await fetchCollection('events');
-        eventsData.sort((a, b) => (a.startDate || '').localeCompare(b.startDate || ''));
-        setEvents(eventsData);
-      } catch (error) {
-        console.error('Error fetching events:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadEvents();
+  const loadEvents = useCallback(async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      const eventsData = await fetchCollection('events');
+      eventsData.sort((a, b) => (a.startDate || '').localeCompare(b.startDate || ''));
+      setEvents(eventsData);
+    } catch (err) {
+      console.error('Error fetching events:', err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadEvents();
+  }, [loadEvents]);
 
   const visibleEvents = useNearbyEvents(events, geolocation.coords, { nearbyOnly: nearMeOnly });
 
@@ -97,6 +102,8 @@ const Networking = () => {
 
       {loading ? (
         <LoadingIndicator />
+      ) : error ? (
+        <ErrorState message="We couldn't load the events right now." onRetry={loadEvents} />
       ) : filteredEvents.length === 0 ? (
         <p className="empty-state">No events match right now — check back soon.</p>
       ) : (

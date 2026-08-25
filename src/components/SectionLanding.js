@@ -27,6 +27,7 @@ const SectionLanding = ({
 }) => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(!!collectionName);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     if (!collectionName) return;
@@ -39,6 +40,7 @@ const SectionLanding = ({
         setItems(await fetchCollection(collectionName, { max: TEASER_COUNT }));
       } catch (error) {
         console.error(`Error fetching ${collectionName} teaser:`, error);
+        setFailed(true);
       } finally {
         setLoading(false);
       }
@@ -46,6 +48,11 @@ const SectionLanding = ({
 
     fetchTeaser();
   }, [collectionName]);
+
+  // The teaser is a nice-to-have on a marketing page. If it can't load, drop
+  // the whole section rather than leaving a heading stranded over an empty
+  // grid — an error banner here would be noise to someone who isn't signed in.
+  const showTeaser = collectionName && !failed && (loading || items.length > 0);
 
   return (
     <div className="section-landing">
@@ -73,7 +80,7 @@ const SectionLanding = ({
 
       {children}
 
-      {collectionName && (
+      {showTeaser && (
         <section className="section section-alt">
           <Reveal className="section-heading">
             <h2>{teaserHeading}</h2>
