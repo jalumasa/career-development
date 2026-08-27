@@ -72,7 +72,11 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  const user = await verifyRequestUser(req);
+  const { user, reason } = await verifyRequestUser(req);
+  if (reason === 'misconfigured') {
+    res.status(500).json({ error: "Compass AI isn't available right now. Please try again later." });
+    return;
+  }
   if (!user) {
     res.status(401).json({ error: 'You need to be signed in to use Compass AI.' });
     return;
