@@ -16,6 +16,7 @@ import ArticleView from './pages/ArticleView';
 import CareerResources from './pages/CareerResources';
 import Chatbot from './pages/Chatbot';
 import ChatbotLanding from './pages/ChatbotLanding';
+import About from './pages/About';
 import Contact from './pages/Contact';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
@@ -149,6 +150,7 @@ function App() {
             <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/resources" element={<RequireAuth user={user} fallback={<ResourcesLanding />}><CareerResources /></RequireAuth>} />
             <Route path="/resources/:id" element={<RequireAuth user={user} fallback={<Navigate to="/resources" />}><ArticleView /></RequireAuth>} />
