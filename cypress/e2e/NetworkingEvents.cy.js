@@ -1,4 +1,8 @@
 describe('Networking Events Test', () => {
+    beforeEach(() => {
+      cy.login('jonalumuk@gmail.com', '12345678');
+    });
+
     it('should access networking events and display them correctly', () => {
       // Visit the networking events page
       cy.visit('http://localhost:3000/networking');

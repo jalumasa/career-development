@@ -1,4 +1,8 @@
 describe('Booking Mentor Sessions Test', () => {
+    beforeEach(() => {
+      cy.login('jonalumuk@gmail.com', '12345678');
+    });
+
     it('should access the mentors page and book a session', () => {
       // Visit the mentors page
       cy.visit('http://localhost:3000/mentorship');

@@ -1,4 +1,8 @@
 describe('Dashboard Test', () => {
+    beforeEach(() => {
+      cy.login('jonalumuk@gmail.com', '12345678');
+    });
+
     it('should display statistics correctly on the dashboard', () => {
       // Visit the dashboard page
       cy.visit('http://localhost:3000/dashboard');

@@ -1,4 +1,8 @@
 describe('Career Resources Test', () => {
+  beforeEach(() => {
+    cy.login('jonalumuk@gmail.com', '12345678');
+  });
+
   it('should access career resources and display them correctly', () => {
     cy.visit('http://localhost:3000/resources');
 
