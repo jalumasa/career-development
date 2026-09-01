@@ -4,7 +4,7 @@ const PrivacyPolicy = () => {
   return (
     <div className="container legal-page">
       <h1>Privacy Policy</h1>
-      <p className="legal-updated">Last updated: August 2026</p>
+      <p className="legal-updated">Last updated: September 2026</p>
 
       <p>
         This policy explains what information Compass collects, why, and how
@@ -17,6 +17,7 @@ const PrivacyPolicy = () => {
         <li><strong>Account information</strong> — your email address and password (handled by Firebase Authentication; we never see or store your password ourselves).</li>
         <li><strong>Profile information</strong> — your name and any "information" text you choose to add to your profile.</li>
         <li><strong>Content you submit</strong> — mentorship booking requests, and messages you send to the AI career chatbot.</li>
+        <li><strong>Approximate location</strong> — only if you tap "Find events near me" on the Networking page, and only after your browser asks your permission. Your coordinates are used to sort events by distance and to look up a place name to show you. They are never stored in our database, and we never request your location automatically or in the background.</li>
         <li><strong>Basic usage data</strong> — collected automatically by Firebase to keep the service running (e.g. authentication state).</li>
       </ul>
 
@@ -30,6 +31,7 @@ const PrivacyPolicy = () => {
       <ul>
         <li><strong>Firebase (Google)</strong> handles authentication and stores your account and profile data.</li>
         <li><strong>Anthropic</strong> processes the messages you send to Compass AI in order to generate a response. Don't share anything in the chatbot you wouldn't want sent to a third-party AI provider.</li>
+        <li><strong>OpenStreetMap (Nominatim)</strong> receives your coordinates if you use "Find events near me", in order to turn them into a readable place name. This only ever happens after you grant permission.</li>
       </ul>
 
       <h2>Your choices</h2>
