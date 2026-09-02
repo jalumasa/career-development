@@ -18,6 +18,9 @@ const describeWriteError = (error) =>
     ? "Your account doesn't have permission for that — check the Firestore rules."
     : 'Please try again.';
 
+/** Firestore's hard limit on operations in a single writeBatch. */
+const FIRESTORE_BATCH_LIMIT = 500;
+
 const EMPTY_RESOURCE = { title: '', category: '', summary: '', content: '' };
 const EMPTY_MENTOR = { name: '', bio: '', specialty: '', contactEmail: '' };
 const EMPTY_EVENT = {
@@ -94,16 +97,21 @@ const AdminPanel = () => {
   };
 
   const notifyAllUsers = async (type, message) => {
-    const batch = writeBatch(db);
-    users.forEach((user) => {
-      batch.set(doc(collection(db, 'notifications')), {
-        userId: user.id,
-        type,
-        message,
-        timestamp: serverTimestamp(),
+    // Firestore caps a batch at 500 operations, so one batch per user only
+    // worked while there were fewer than 500 accounts — the 501st would have
+    // made every add throw. Commit in chunks instead.
+    for (let start = 0; start < users.length; start += FIRESTORE_BATCH_LIMIT) {
+      const batch = writeBatch(db);
+      users.slice(start, start + FIRESTORE_BATCH_LIMIT).forEach((user) => {
+        batch.set(doc(collection(db, 'notifications')), {
+          userId: user.id,
+          type,
+          message,
+          timestamp: serverTimestamp(),
+        });
       });
-    });
-    await batch.commit();
+      await batch.commit();
+    }
   };
 
   /** Adds one document, resets its form, and refreshes that collection's list. */
@@ -129,9 +137,12 @@ const AdminPanel = () => {
       const missing = seeds.filter((seed) => !existingKeys.has(seed[keyField]));
       if (missing.length === 0) return;
 
-      const batch = writeBatch(db);
-      missing.forEach((seed) => batch.set(doc(collection(db, collectionName)), seed));
-      await batch.commit();
+      for (let start = 0; start < missing.length; start += FIRESTORE_BATCH_LIMIT) {
+        const batch = writeBatch(db);
+        missing.slice(start, start + FIRESTORE_BATCH_LIMIT)
+          .forEach((seed) => batch.set(doc(collection(db, collectionName)), seed));
+        await batch.commit();
+      }
 
       await reload(collectionName);
       await notifyAllUsers(

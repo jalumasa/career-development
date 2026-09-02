@@ -25,3 +25,21 @@
   padding: var(--space-3);
   border-radius: var(--radius-sm);
 }
+
+.notifications-page li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.notification-message {
+  flex: 1;
+}
+
+.notification-time {
+  flex-shrink: 0;
+  color: var(--color-text-faint);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}

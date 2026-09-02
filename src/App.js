@@ -11,6 +11,7 @@ import { auth, db } from './firebase';
 import Footer from './Footer';
 import Home from './Home'; // Import the new Home.js component
 import useTheme from './hooks/useTheme';
+import useUnreadNotifications from './hooks/useUnreadNotifications';
 import AdminPanel from './pages/AdminPanel';
 import ArticleView from './pages/ArticleView';
 import CareerResources from './pages/CareerResources';
@@ -37,6 +38,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const [theme, toggleTheme] = useTheme();
+  const { count: unreadCount, markAllSeen } = useUnreadNotifications(user);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -112,8 +114,17 @@ function App() {
               </div>
               {user && (
                 <div className="nav-icons">
-                  <NavLink to="/notifications" onClick={closeMenu} className="nav-icon-button" aria-label="Notifications">
-                    <FaBell /> <span className="nav-icon-label">Notifications</span>
+                  <NavLink
+                    to="/notifications"
+                    onClick={closeMenu}
+                    className="nav-icon-button"
+                    aria-label={unreadCount > 0 ? `Notifications (${unreadCount} unread)` : 'Notifications'}
+                  >
+                    <FaBell />
+                    {unreadCount > 0 && (
+                      <span className="nav-icon-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>
+                    )}
+                    <span className="nav-icon-label">Notifications</span>
                   </NavLink>
                   <NavLink to="/profile" onClick={closeMenu} className="nav-icon-button" aria-label="Profile">
                     <FaUserCircle /> <span className="nav-icon-label">Profile</span>
@@ -158,7 +169,7 @@ function App() {
             <Route path="/mentorship" element={<RequireAuth user={user} fallback={<MentorshipLanding />}><Mentorship /></RequireAuth>} />
             <Route path="/chatbot" element={<RequireAuth user={user} fallback={<ChatbotLanding />}><Chatbot /></RequireAuth>} />
             <Route path="/search" element={<RequireAuth user={user}><SearchResults /></RequireAuth>} />
-            <Route path="/notifications" element={<RequireAuth user={user}><NotificationsPage /></RequireAuth>} />
+            <Route path="/notifications" element={<RequireAuth user={user}><NotificationsPage onSeen={markAllSeen} /></RequireAuth>} />
             <Route path="/profile" element={<RequireAuth user={user}><Profile /></RequireAuth>} />
             <Route path="/admin" element={<RequireAdmin user={user} isAdmin={isAdmin}><AdminPanel /></RequireAdmin>} />
             <Route path="/dashboard" element={<RequireAdmin user={user} isAdmin={isAdmin}><Dashboard /></RequireAdmin>} />

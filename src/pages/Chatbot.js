@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FaCompass } from 'react-icons/fa';
+import LogoMark from '../components/LogoMark';
 import ChatInput from '../components/ChatInput';
 import ChatWindow from '../components/ChatWindow';
 import chatSuggestions from '../data/chatSuggestions';
@@ -43,7 +43,7 @@ const Chatbot = () => {
     <div className="chatbot-page">
       <div className="chatbot-shell">
         <header className="chatbot-header">
-          <span className="chatbot-header-icon"><FaCompass /></span>
+          <span className="chatbot-header-icon"><LogoMark size={19} /></span>
           <div>
             <h1>Compass AI</h1>
             <p>Your AI career guide</p>
