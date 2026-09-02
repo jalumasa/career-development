@@ -32,7 +32,7 @@
 
   /* Typography — system-first for that clean, native feel; Inter as the
      cross-platform fallback where neither system face is available */
-  --font-display: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-body: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 
   /* Spacing (4px base) */

@@ -14,8 +14,8 @@ const Footer = () => {
             <Logo />
           </Link>
           <p>
-            Find your direction. Resources, real people, and an AI that
-            actually helps — everything you need to move your career forward.
+            The career platform that actually points somewhere — resources,
+            real people, and an AI that helps you move.
           </p>
         </div>
 

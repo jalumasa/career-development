@@ -60,8 +60,8 @@ function Home() {
           <p className="eyebrow">Find your direction</p>
           <h1>Build the career <span className="text-gradient">you actually want</span></h1>
           <p className="hero-subtitle">
-            Compass is resources, real people, and an AI that actually helps —
-            everything you need to stop drifting and start moving.
+            The career platform that actually points somewhere — resources,
+            real people, and an AI that helps you move.
           </p>
           <div className="home-buttons">
             <Link to="/login" className="home-button home-button-primary">
