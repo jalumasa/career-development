@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# A second push to the same branch cancels the run still going for the first.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Test and build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      # `npm ci` installs exactly what package-lock.json pins and fails if the
+      # lockfile is out of sync with package.json — which is the point of
+      # running it here rather than `npm install`.
+      - name: Install dependencies
+        run: npm ci
+        env:
+          # Cypress is a devDependency, and its postinstall pulls a ~500MB
+          # binary. Nothing here runs Cypress — those specs need a live dev
+          # server and a real Firebase login — so skip the download.
+          CYPRESS_INSTALL_BINARY: 0
+
+      - name: Run tests
+        run: npm test -- --watchAll=false
+
+      # GitHub Actions sets CI=true, which makes react-scripts treat lint
+      # warnings as errors. That is deliberate: an unused import or a bad hook
+      # dependency should fail here rather than land on main.
+      - name: Build
+        run: npm run build
